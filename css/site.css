@@ -6,11 +6,12 @@
   --dim: #5c5852;
   --line: rgba(238, 232, 223, 0.16);
   --orange: #f25c12;
+  --up: #7f9a72;
+  --down: #b5746a;
   --pad: clamp(1.1rem, 4vw, 3rem);
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --serif: "Newsreader", "Times New Roman", serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-  --hand: "Caveat", "Segoe Script", cursive;
 }
 
 *,
@@ -168,26 +169,6 @@ main,
   text-align: center;
   padding-top: 5.2rem;
   padding-bottom: 1.75rem;
-}
-
-.note {
-  position: absolute;
-  margin: 0;
-  color: var(--orange);
-  font-family: var(--hand);
-  font-size: 1.35rem;
-  transform: rotate(-6deg);
-}
-
-.note--a {
-  top: 4.6rem;
-  left: var(--pad);
-}
-
-.note--b {
-  top: 5.1rem;
-  right: var(--pad);
-  transform: rotate(5deg);
 }
 
 .wordmark {
@@ -398,6 +379,16 @@ main,
   text-transform: uppercase;
 }
 
+.row .signed--up,
+.row .sign--up {
+  color: var(--up);
+}
+
+.row .signed--down,
+.row .sign--down {
+  color: var(--down);
+}
+
 .row small {
   color: var(--dim);
   font-family: var(--serif);
@@ -447,6 +438,10 @@ main,
   width: 0.5rem;
   height: 0.5rem;
   background: var(--orange);
+}
+
+.legend__swatch--spy {
+  background: rgba(238, 232, 223, 0.45);
 }
 
 .chart {
@@ -731,8 +726,6 @@ code {
     grid-template-columns: 1fr;
   }
 
-  .note--a,
-  .note--b,
   .frame__bl,
   .frame__br {
     display: none;

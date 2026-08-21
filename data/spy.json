@@ -1,0 +1,21 @@
+{
+  "symbol": "SPY",
+  "source": "Yahoo Finance SPY daily, retrieved Aug 21, 2026.",
+  "baseline": {
+    "date": "2026-08-20",
+    "kind": "prior_close",
+    "close": 762.6,
+    "note": "Close before the first trade day. Buy-and-hold baseline = 0%."
+  },
+  "bars": [
+    {
+      "date": "2026-08-21",
+      "open": 766.05,
+      "high": 767.85,
+      "low": 764.17,
+      "close": 765.72,
+      "change": 3.12,
+      "change_pct": 0.41
+    }
+  ]
+}
