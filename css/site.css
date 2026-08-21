@@ -6,6 +6,8 @@
   --dim: #5c5852;
   --line: rgba(238, 232, 223, 0.16);
   --orange: #f25c12;
+  --up: #7f9a72;
+  --down: #b5746a;
   --pad: clamp(1.1rem, 4vw, 3rem);
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --serif: "Newsreader", "Times New Roman", serif;
@@ -375,6 +377,16 @@ main,
   font-size: 0.62rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.row .signed--up,
+.row .sign--up {
+  color: var(--up);
+}
+
+.row .signed--down,
+.row .sign--down {
+  color: var(--down);
 }
 
 .row small {

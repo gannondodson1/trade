@@ -115,6 +115,33 @@ const copyChecks = [
   ["disclaimer rail", readFileSync(join(root, "index.html"), "utf8").includes("Personal $500 log"), true],
   ["page title retitled", readFileSync(join(root, "index.html"), "utf8").includes("<title>Gannon’s Agentic Trader</title>"), true],
   ["wordmark AGENTIC", readFileSync(join(root, "index.html"), "utf8").includes("AGENTIC"), true],
+  [
+    "signed P/L colors exist",
+    readFileSync(join(root, "css/site.css"), "utf8").includes("--up:") &&
+      readFileSync(join(root, "css/site.css"), "utf8").includes("--down:"),
+    true,
+  ],
+  [
+    "portfolio value is not a signed figure",
+    /row\("Portfolio".*signedFigure/.test(readFileSync(join(root, "js/site.js"), "utf8")),
+    false,
+  ],
+  [
+    "no portfolio-up pill",
+    readFileSync(join(root, "js/site.js"), "utf8").includes("PORTFOLIO IS UP"),
+    false,
+  ],
+  [
+    "total return is a signed figure",
+    readFileSync(join(root, "js/site.js"), "utf8").includes('row("Total return"') &&
+      readFileSync(join(root, "js/site.js"), "utf8").includes("signedFigure(signedPct(book.totalReturn)"),
+    true,
+  ],
+  [
+    "profit or loss is a signed figure",
+    readFileSync(join(root, "js/site.js"), "utf8").includes("signedFigure(signedMoney(book.dollar)"),
+    true,
+  ],
 ];
 for (const [name, got, want] of copyChecks) {
   if (got !== want) {

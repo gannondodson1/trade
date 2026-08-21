@@ -74,6 +74,20 @@ function signWord(n) {
   return "flat";
 }
 
+function signTone(n) {
+  if (n > 0) return "up";
+  if (n < 0) return "down";
+  return "flat";
+}
+
+function signedFigure(formatted, n) {
+  return `<span class="signed signed--${signTone(n)}">${escapeHtml(formatted)}</span>`;
+}
+
+function signMark(n) {
+  return `<span class="sign sign--${signTone(n)}">${signWord(n)}</span>`;
+}
+
 function formatClock(iso) {
   return new Date(iso).toLocaleString("en-US", {
     timeZone: "America/New_York",
@@ -280,8 +294,8 @@ function renderKpis(book, meta) {
 
   document.getElementById("kpis").innerHTML = `
     ${row("Portfolio", `${escapeHtml(money(book.lastEquity))} <span class="sign">${flag}</span>`, `Started at ${escapeHtml(money(book.start))}. Last public snapshot.`, "row--hero")}
-    ${row("Total return", `${escapeHtml(signedPct(book.totalReturn))} <span class="sign">${signWord(book.totalReturn)}</span>`, `Last equity minus ${escapeHtml(money(book.start))}, divided by ${escapeHtml(money(book.start))}. Account opened Aug 21, 2026.`)}
-    ${row("Profit or loss", `${escapeHtml(signedMoney(book.dollar))} <span class="sign">${signWord(book.dollar)}</span>`, `Last equity minus the ${escapeHtml(money(book.start))} start.`)}
+    ${row("Total return", `${signedFigure(signedPct(book.totalReturn), book.totalReturn)} ${signMark(book.totalReturn)}`, `Last equity minus ${escapeHtml(money(book.start))}, divided by ${escapeHtml(money(book.start))}. Account opened Aug 21, 2026.`)}
+    ${row("Profit or loss", `${signedFigure(signedMoney(book.dollar), book.dollar)} ${signMark(book.dollar)}`, `Last equity minus the ${escapeHtml(money(book.start))} start.`)}
     ${row("Cash", escapeHtml(money(book.cash)), "What’s left after the three fills.")}
   `;
 
@@ -296,7 +310,7 @@ function renderKpis(book, meta) {
   document.getElementById("secondary").hidden = false;
   document.getElementById("secondary").innerHTML = `
     ${row("Realized P/L", escapeHtml(realizedText), "Nothing’s closed yet, so this is $0.")}
-    ${row("Open P/L", `${escapeHtml(openText)} <span class="sign">${book.openPnl == null ? "" : signWord(book.openPnl)}</span>`, "Last equity versus start, minus realized.")}
+    ${row("Open P/L", book.openPnl == null ? escapeHtml(openText) : `${signedFigure(openText, book.openPnl)} ${signMark(book.openPnl)}`, "Last equity versus start, minus realized.")}
     ${row("Capital deployed", escapeHtml(money(book.deployed)), `Filled notionals still open (${deployedParts}).`, "is-accent")}
     ${row("Closed trades", escapeHtml(String(book.closed)), "No win rate until something closes.")}
     ${
@@ -304,7 +318,7 @@ function renderKpis(book, meta) {
         ? ""
         : row(
             "Vs S&P 500",
-            `${escapeHtml(signedPct(vsSpy))} <span class="sign">${signWord(vsSpy)}</span>`,
+            `${signedFigure(signedPct(vsSpy), vsSpy)} ${signMark(vsSpy)}`,
             `Desk ${signedPct(deskPct)} minus SPY ${signedPct(spyClosePct)} from the Aug 20 close. That’s the only definition used here.`
           )
     }
