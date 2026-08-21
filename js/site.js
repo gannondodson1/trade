@@ -68,10 +68,10 @@ function signedPct(n) {
   return `${sign}${Math.abs(value).toFixed(2)}%`;
 }
 
-function toneClass(n) {
-  if (n > 0) return "is-up";
-  if (n < 0) return "is-down";
-  return "";
+function signWord(n) {
+  if (n > 0) return "plus";
+  if (n < 0) return "minus";
+  return "flat";
 }
 
 function formatClock(iso) {
@@ -264,65 +264,42 @@ function computeBook(meta, equity, trades) {
   };
 }
 
+function row(label, value, note, extra = "") {
+  return `
+    <div class="row ${extra}">
+      <dt>${label}</dt>
+      <dd>${value}</dd>
+      <small>${note}</small>
+    </div>
+  `;
+}
+
 function renderKpis(book, meta) {
-  const upPill =
-    book.dollar > 0
-      ? `<p class="pill">Portfolio is up so far</p>`
-      : book.dollar < 0
-        ? `<p class="pill">Portfolio is down so far</p>`
-        : "";
+  const flag =
+    book.dollar > 0 ? "up so far" : book.dollar < 0 ? "down so far" : "flat so far";
 
   document.getElementById("kpis").innerHTML = `
-    <article class="kpi">
-      <p class="label">Portfolio value</p>
-      <p class="kpi__value kpi__value--lg">${escapeHtml(money(book.lastEquity))}</p>
-      ${upPill}
-      <p class="kpi__note">Started at ${escapeHtml(money(book.start))}. Last snapshot from the public equity log.</p>
-    </article>
-    <article class="kpi">
-      <p class="label">Total return</p>
-      <p class="kpi__value ${toneClass(book.totalReturn)}">${escapeHtml(signedPct(book.totalReturn))}</p>
-      <p class="kpi__note">(Last equity − ${escapeHtml(money(book.start))}) / ${escapeHtml(money(book.start))}. Since the account opened Aug 21, 2026.</p>
-    </article>
-    <article class="kpi">
-      <p class="label">Profit or loss</p>
-      <p class="kpi__value ${toneClass(book.dollar)}">${escapeHtml(signedMoney(book.dollar))}</p>
-      <p class="kpi__note">Dollars gained or lost so far. Last equity minus the ${escapeHtml(money(book.start))} start.</p>
-    </article>
-    <article class="kpi">
-      <p class="label">Cash</p>
-      <p class="kpi__value">${escapeHtml(money(book.cash))}</p>
-      <p class="kpi__note">Cash and buying power left after the three filled buys.</p>
-    </article>
+    ${row("Portfolio", `${escapeHtml(money(book.lastEquity))} <span class="sign">${flag}</span>`, `Started at ${escapeHtml(money(book.start))}. Last snapshot from the public equity log.`, "row--hero")}
+    ${row("Total return", `${escapeHtml(signedPct(book.totalReturn))} <span class="sign">${signWord(book.totalReturn)}</span>`, `(Last equity − ${escapeHtml(money(book.start))}) / ${escapeHtml(money(book.start))}. Since the account opened Aug 21, 2026.`)}
+    ${row("Profit or loss", `${escapeHtml(signedMoney(book.dollar))} <span class="sign">${signWord(book.dollar)}</span>`, `Last equity minus the ${escapeHtml(money(book.start))} start.`)}
+    ${row("Cash", escapeHtml(money(book.cash)), "Cash and buying power left after the three filled buys.")}
   `;
 
   const realizedText = book.realized === 0 ? money(0) : "—";
   const openText = book.openPnl == null ? "—" : signedMoney(book.openPnl);
+  const deployedParts = book.fills
+    .map((f) => money(f.notional, Number.isInteger(Number(f.notional)) ? 0 : 2))
+    .join(" + ");
   document.getElementById("secondary").hidden = false;
   document.getElementById("secondary").innerHTML = `
-    <article class="kpi">
-      <p class="label">Realized P/L</p>
-      <p class="kpi__value">${escapeHtml(realizedText)}</p>
-      <p class="kpi__note">No closes in the log, so realized P/L is $0.</p>
-    </article>
-    <article class="kpi">
-      <p class="label">Open P/L</p>
-      <p class="kpi__value ${book.openPnl == null ? "" : toneClass(book.openPnl)}">${escapeHtml(openText)}</p>
-      <p class="kpi__note">Last equity versus start, minus realized. Implied by the book, not a broker mark.</p>
-    </article>
-    <article class="kpi">
-      <p class="label">Capital deployed</p>
-      <p class="kpi__value is-accent">${escapeHtml(money(book.deployed))}</p>
-      <p class="kpi__note">Sum of filled notionals still open (${book.fills.map((f) => money(f.notional, Number.isInteger(Number(f.notional)) ? 0 : 2)).join(" + ")}).</p>
-    </article>
-    <article class="kpi">
-      <p class="label">Closed trades</p>
-      <p class="kpi__value">${escapeHtml(String(book.closed))}</p>
-      <p class="kpi__note">No win rate until something closes.</p>
-    </article>
+    ${row("Realized P/L", escapeHtml(realizedText), "No closes in the log, so realized P/L is $0.")}
+    ${row("Open P/L", `${escapeHtml(openText)} <span class="sign">${book.openPnl == null ? "" : signWord(book.openPnl)}</span>`, "Last equity versus start, minus realized.")}
+    ${row("Capital deployed", escapeHtml(money(book.deployed)), `Filled notionals still open (${deployedParts}).`, "is-accent")}
+    ${row("Closed trades", escapeHtml(String(book.closed)), "No win rate until something closes.")}
   `;
 
-  document.getElementById("updated-stamp").textContent = `Updated ${meta.updated_et}`;
+  const stamp = meta.updated_et.replace(/^Updated:\s*/i, "");
+  document.getElementById("updated-stamp").textContent = `last mark ${stamp}`;
 }
 
 function yTicks(min, max) {
@@ -378,14 +355,14 @@ function renderChart(equity, start) {
     .map((tick) => {
       const yy = y(tick);
       return `<line x1="${L}" y1="${yy.toFixed(1)}" x2="${W - R}" y2="${yy.toFixed(1)}" stroke="rgba(238,232,223,0.10)" />
-        <text x="${L - 10}" y="${yy + 4}" fill="#8a847a" font-size="12" text-anchor="end">${money(tick, tick % 1 === 0 ? 0 : 2)}</text>`;
+        <text x="${L - 10}" y="${yy + 4}" fill="#8a847a" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="end">${money(tick, tick % 1 === 0 ? 0 : 2)}</text>`;
     })
     .join("");
 
   const xLabels = equity
     .map((row, i) => {
       if (equity.length > 6 && i !== 0 && i !== equity.length - 1 && i % 2 === 1) return "";
-      return `<text x="${xs[i].toFixed(1)}" y="${H - 14}" fill="#8a847a" font-size="12" text-anchor="middle">${escapeHtml(formatTime(row.ts))}</text>`;
+      return `<text x="${xs[i].toFixed(1)}" y="${H - 14}" fill="#8a847a" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="middle">${escapeHtml(formatTime(row.ts))}</text>`;
     })
     .join("");
 
@@ -400,7 +377,7 @@ function renderChart(equity, start) {
             `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.4" fill="#0d0d0d" stroke="#f25c12" stroke-width="1.6" />`
         )
         .join("")}
-      <text x="${W - R + 10}" y="${last.y + 4}" fill="#eee8df" font-size="13">${escapeHtml(signedPct(((last.row.equity - start) / start) * 100))} desk</text>
+      <text x="${W - R + 10}" y="${last.y + 4}" fill="#eee8df" font-size="12" font-family="IBM Plex Mono, monospace">${escapeHtml(signedPct(((last.row.equity - start) / start) * 100))} book</text>
       ${xLabels}
     </svg>
     <div class="chart-tip" hidden></div>
@@ -436,12 +413,12 @@ function renderMethodology(md) {
   const parsed = parseMethodology(md);
   document.getElementById("method-lede").textContent = parsed.lede;
   document.getElementById("methodology").innerHTML = `
-    <div class="split__col">
-      <h3>The two lenses</h3>
+    <div class="doctrine__col">
+      <h3>02.1 / Two lenses</h3>
       ${mdBlocks(parsed.edge)}
     </div>
-    <div class="split__col">
-      <h3>Hard limits and evidence</h3>
+    <div class="doctrine__col">
+      <h3>02.2 / Hard limits</h3>
       ${mdBlocks(parsed.limits)}
       <p class="split__foot">${mdInline(parsed.evidence)}</p>
     </div>
@@ -461,7 +438,7 @@ function renderThinking(thought) {
 
 function renderPositions(book, thought) {
   const stance = thought?.stance || {};
-  const cards = book.fills.map((fill) => {
+  const cards = book.fills.map((fill, i) => {
     const parsed = parseFillNote(fill.note);
     const isOption = Boolean(fill.instrument);
     let sub;
@@ -484,20 +461,29 @@ function renderPositions(book, thought) {
     const targetLabel = fill.target != null ? exactPx(fill.target) : "—";
 
     return `
-      <article class="position">
-        <div class="position__top">
-          <div>
-            <h3>${escapeHtml(fill.symbol)}</h3>
-            <p class="position__sub">${sub}</p>
-          </div>
+      <article class="folder ${i === 0 ? "is-open" : ""}">
+        <button class="folder__tab" type="button" aria-expanded="${i === 0 ? "true" : "false"}">
+          <span class="folder__name">${escapeHtml(fill.symbol)}</span>
+          <span class="folder__meta">${sub}</span>
+          <span class="folder__chev" aria-hidden="true">›</span>
+        </button>
+        <div class="folder__body">
+          <p>${lastBits.join(" · ")}</p>
+          ${now ? `<p>${escapeHtml(now)}</p>` : ""}
+          <p class="folder__foot">software stop ${escapeHtml(stopLabel)} or target ${escapeHtml(targetLabel)}</p>
         </div>
-        <p class="position__detail">${lastBits.join(" · ")}</p>
-        ${now ? `<p class="position__detail">${escapeHtml(now)}</p>` : ""}
-        <p class="position__foot">software stop ${escapeHtml(stopLabel)} or target ${escapeHtml(targetLabel)}</p>
       </article>
     `;
   });
-  document.getElementById("positions").innerHTML = cards.join("") || "<p class='kpi__note'>No open fills.</p>";
+  document.getElementById("positions").innerHTML = cards.join("") || "<p class='loading'>No open fills.</p>";
+  document.querySelectorAll(".folder__tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const folder = btn.closest(".folder");
+      const open = !folder.classList.contains("is-open");
+      folder.classList.toggle("is-open", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  });
 }
 
 function renderWaitlist(thought) {
@@ -533,14 +519,9 @@ function renderTrades(fills) {
         bullets.push(`Filled ${parsed.qty} contract at ${parsed.price} (${money(fill.notional)} debit).`);
       }
       return `
-        <article class="log-item">
-          <div class="log-item__head">
-            <div>
-              <h3>Bought $${escapeHtml(fill.symbol)}</h3>
-              <p class="log-item__meta">${when}</p>
-            </div>
-            <span class="badge">${escapeHtml(fill.symbol)}</span>
-          </div>
+        <article>
+          <h3>Bought $${escapeHtml(fill.symbol)}</h3>
+          <p class="record__meta">${when} · ${escapeHtml(fill.symbol)}</p>
           <p>${escapeHtml(fill.thesis || "")}</p>
           ${fill.note ? `<p>${escapeHtml(fill.note)}</p>` : ""}
           ${bullets.length ? `<ul>${bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
@@ -565,13 +546,13 @@ function renderChangelog(md) {
 }
 
 function watchNav() {
-  const links = [...document.querySelectorAll(".nav a")];
+  const links = [...document.querySelectorAll(".pill a")];
   const sections = links
     .map((a) => document.querySelector(a.getAttribute("href")))
     .filter(Boolean);
 
   const sync = () => {
-    const y = window.scrollY + 120;
+    const y = window.scrollY + 140;
     let current = sections[0];
     for (const section of sections) {
       if (section.offsetTop <= y) current = section;
@@ -581,6 +562,52 @@ function watchNav() {
 
   window.addEventListener("scroll", sync, { passive: true });
   sync();
+}
+
+function cursorTrail() {
+  const canvas = document.querySelector(".trail");
+  if (!canvas) return;
+  if (window.matchMedia("(pointer: coarse)").matches) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const ctx = canvas.getContext("2d");
+  const pts = [];
+  const resize = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  };
+  resize();
+  window.addEventListener("resize", resize);
+  const coords = document.getElementById("coords");
+  window.addEventListener(
+    "pointermove",
+    (e) => {
+      pts.push({ x: e.clientX, y: e.clientY });
+      if (pts.length > 16) pts.shift();
+      if (coords) {
+        const nx = ((e.clientX / window.innerWidth) * 100).toFixed(2);
+        const ny = ((e.clientY / window.innerHeight) * 100).toFixed(2);
+        coords.innerHTML = `X ${nx}&nbsp;&nbsp;Y ${ny}`;
+      }
+    },
+    { passive: true }
+  );
+
+  const tick = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (pts.length > 1) {
+      ctx.beginPath();
+      ctx.strokeStyle = "rgba(242, 92, 18, 0.38)";
+      ctx.lineWidth = 1;
+      pts.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+    }
+    requestAnimationFrame(tick);
+  };
+  tick();
 }
 
 async function main() {
@@ -612,6 +639,7 @@ async function main() {
     renderTrades(book.fills);
     renderChangelog(changelog);
     watchNav();
+    cursorTrail();
   } catch (err) {
     document.getElementById("kpis").innerHTML = `<p class="error">${escapeHtml(err.message)}</p>`;
   }

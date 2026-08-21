@@ -100,6 +100,8 @@ const copyChecks = [
   ["disclaimer in hero", readFileSync(join(root, "index.html"), "utf8").includes("not a recommendation to buy or sell"), true],
   ["disclaimer in footer", readFileSync(join(root, "index.html"), "utf8").includes("Not trading advice. This site is Gannon"), true],
   ["disclaimer rail", readFileSync(join(root, "index.html"), "utf8").includes("Personal $500 log"), true],
+  ["page title retitled", readFileSync(join(root, "index.html"), "utf8").includes("<title>Gannon’s Agentic Trader</title>"), true],
+  ["wordmark AGENTIC", readFileSync(join(root, "index.html"), "utf8").includes("AGENTIC"), true],
 ];
 for (const [name, got, want] of copyChecks) {
   if (got !== want) {
@@ -110,10 +112,18 @@ for (const [name, got, want] of copyChecks) {
   }
 }
 
-const banned = ["Tradey", "Claudey", "farzad.money", "Tradey proposes"];
+const banned = [
+  "Tradey",
+  "Claudey",
+  "farzad.money",
+  "Tradey proposes",
+  "Gannon’s public desk",
+  "Gannon's public desk",
+];
 for (const file of [
   "index.html",
   "js/site.js",
+  "404.html",
   "README.md",
   "data/methodology.md",
   "data/thinking.md",
