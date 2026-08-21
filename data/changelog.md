@@ -29,3 +29,9 @@ Why it matters: the book can run during the session without being poked, with a 
 Math still picks size and timing. A real unpriced cultural or consumer signal can be the reason to look. Research sends a note each weekday before the open.
 
 Why it matters: we can take a story the tape hasn’t priced, without dropping the 2:1 and liquidity checks.
+
+## Aug 21, 2026 — Name off the public page
+
+Social-arb stays. The public log no longer names a person for that lens.
+
+Why it matters: the site should describe the method, not a person.

@@ -96,10 +96,11 @@ const copyChecks = [
   ["methodology social-arb math limit", methodology.includes("A social-arb idea still has to clear the same math"), true],
   ["changelog loop item is original", changelog.includes("15-minute regular-hours checks, software stops"), true],
   ["changelog research feed item", changelog.includes("Research feed + social arb"), true],
+  ["changelog name-off item", changelog.includes("Name off the public page"), true],
   [
     "changelog heading count",
     changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
-    5,
+    6,
   ],
   ["thinking after close", thinking.includes("5:49 PM ET (after close)"), true],
   ["thinking Monday triggers", thinking.includes("What would make it do something Monday"), true],
