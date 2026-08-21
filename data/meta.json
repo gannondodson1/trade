@@ -1,0 +1,14 @@
+{
+  "desk": "Gannon's public desk",
+  "owner": "Gannon Dodson",
+  "start_equity": 500.00,
+  "last_equity": 505.40,
+  "cash": 11.96,
+  "buying_power": 11.96,
+  "updated_et": "Aug 21, 2026, 5:08 PM ET",
+  "updated_iso": "2026-08-21T17:08:00-04:00",
+  "updated_note": "after close",
+  "closed_trades": 0,
+  "open_positions": 3,
+  "experiment": "Robinhood Agentic"
+}

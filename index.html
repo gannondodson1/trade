@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gannon’s public desk</title>
+    <meta
+      name="description"
+      content="Public $500 Robinhood Agentic experiment. Software stops. Visible book. Gannon Dodson’s trading desk."
+    />
+    <meta name="theme-color" content="#0d0d0d" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/site.css" />
+  </head>
+  <body>
+    <a class="skip" href="#performance">Skip to performance</a>
+
+    <header class="mast">
+      <div class="mast__top">
+        <div class="mast__brand">
+          <p class="tag">public book</p>
+          <h1 class="wordmark">Gannon’s<br />public desk</h1>
+          <p class="lede">
+            A public $500 experiment. Software stops. The book stays visible.
+          </p>
+        </div>
+        <div class="mast__meta">
+          <p class="updated">
+            <span class="updated__dot" aria-hidden="true"></span>
+            <span id="updated-stamp">Updated Aug 21, 2026, 5:08 PM ET (after close)</span>
+          </p>
+          <a class="ghost" href="#how-it-works">The rules</a>
+        </div>
+      </div>
+    </header>
+
+    <nav class="nav" aria-label="On this page">
+      <div class="nav__rule"></div>
+      <ul>
+        <li><a href="#performance">Performance</a></li>
+        <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#holdings">Holdings</a></li>
+        <li><a href="#reasoning">Reasoning</a></li>
+        <li><a href="#improvements">Improvements</a></li>
+      </ul>
+      <div class="nav__rule"></div>
+    </nav>
+
+    <main>
+      <section id="performance" class="section">
+        <div id="kpis" class="panel kpis" aria-live="polite">
+          <p class="loading">Loading the public book…</p>
+        </div>
+        <div id="secondary" class="panel kpis kpis--secondary" hidden></div>
+
+        <figure class="panel chart-wrap">
+          <div class="chart-head">
+            <p class="label">Desk equity since the $500 start</p>
+            <p class="legend">
+              <span class="legend__swatch" aria-hidden="true"></span>
+              Desk (snapshot equity)
+            </p>
+          </div>
+          <div id="chart" class="chart" role="img" aria-label="Desk equity over time"></div>
+          <figcaption class="caption" id="chart-caption"></figcaption>
+        </figure>
+      </section>
+
+      <section id="how-it-works" class="section section--win">
+        <header class="section__head">
+          <h2>How the desk tries to win</h2>
+          <p id="method-lede" class="section__sub"></p>
+        </header>
+        <div id="methodology" class="split"></div>
+      </section>
+
+      <section id="holdings" class="section">
+        <header class="section__head">
+          <h2>What it owns right now</h2>
+          <p class="section__sub">
+            Open names from the public fills. Current stance is the after-close
+            note in data/thinking.md. Share counts are rounded for display;
+            logged cost, stop, and target stay exact.
+          </p>
+        </header>
+        <div id="thinking" class="thought"></div>
+        <div id="positions" class="positions"></div>
+        <div id="waitlist" class="waitlist"></div>
+        <p class="center-note">
+          Written for normal people. After-close research is not a live broker
+          mark. Private account details are removed.
+        </p>
+
+        <div class="triggers">
+          <h3>What would make it do something Monday</h3>
+          <ul id="triggers"></ul>
+        </div>
+      </section>
+
+      <section id="reasoning" class="section">
+        <header class="section__head">
+          <h2>Trade reasoning</h2>
+          <p class="section__sub">
+            The simple version first, then the map behind each filled buy.
+          </p>
+        </header>
+        <div id="trades" class="log"></div>
+      </section>
+
+      <section id="improvements" class="section">
+        <header class="section__head">
+          <h2>Improvements</h2>
+          <p class="section__sub">
+            Rule changes stay on the public record. No silent edits. The latest
+            is the two-lens desk and the weekday Research feed.
+          </p>
+        </header>
+        <div id="changelog" class="changelog"></div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p>
+        Gannon’s public desk. A Robinhood Agentic experiment on a dedicated
+        $500 account. This site reads public-safe files in
+        <code>data/</code>. No account numbers, order IDs, credentials, or raw
+        prompts appear here.
+      </p>
+      <p class="foot__dim">
+        Broker-synced numbers come from the public log, not a live private API
+        call in your browser.
+      </p>
+    </footer>
+
+    <noscript>
+      <p class="noscript">
+        This desk is a static page that fetches JSON and markdown from
+        <code>data/</code>. Turn on JavaScript to read the book.
+      </p>
+    </noscript>
+    <script type="module" src="./js/site.js"></script>
+  </body>
+</html>
