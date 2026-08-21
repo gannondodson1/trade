@@ -1,0 +1,6 @@
+{"ts":"2026-08-21T14:53:00-04:00","equity":500.00,"cash":500.00,"buying_power":500.00,"open_positions":0,"note":"Account live. Starting line."}
+{"ts":"2026-08-21T14:57:00-04:00","equity":500.00,"cash":320.00,"buying_power":320.00,"open_positions":1,"note":"Long RKLB 2.46171 @ 73.12. Swing. Stop 69.50 / target 81.80."}
+{"ts":"2026-08-21T15:08:31-04:00","equity":500.71,"cash":140.00,"buying_power":140.00,"open_positions":2,"note":"Long CRWV 2.03892 @ 88.28. Swing. Stop 83.70 / target 98.70. RKLB still open."}
+{"ts":"2026-08-21T15:16:46-04:00","equity":498.00,"cash":11.96,"buying_power":11.96,"open_positions":3,"note":"Long SMCI Sep 4 2026 40 call 1x @ 1.28. RKLB and CRWV swings still open."}
+{"ts":"2026-08-21T15:31:00-04:00","equity":505.02,"cash":11.96,"buying_power":11.96,"open_positions":3,"note":"Hold RKLB 73.06, CRWV 88.39, SMCI 37.32. Stops intact. No new buy."}
+{"ts":"2026-08-21T15:46:00-04:00","equity":505.40,"cash":11.96,"buying_power":11.96,"open_positions":3,"note":"Hold RKLB 72.87, CRWV 88.31, SMCI 37.28. Stops intact. Last RTH check Friday."}

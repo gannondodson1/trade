@@ -1,0 +1,18 @@
+{
+  "desk": "Gannon's public desk",
+  "owner": "Gannon Dodson",
+  "start_equity": 500.00,
+  "last_equity": 505.40,
+  "cash": 11.96,
+  "buying_power": 11.96,
+  "updated_et": "Aug 21, 2026, 3:46 PM ET",
+  "updated_iso": "2026-08-21T15:46:00-04:00",
+  "closed_trades": 0,
+  "open_positions": 3,
+  "experiment": "Robinhood Agentic",
+  "marks": {
+    "RKLB": { "last": 72.87, "bid": 72.85 },
+    "CRWV": { "last": 88.31, "bid": 88.29 },
+    "SMCI": { "last": 37.28, "option_mark": 134 }
+  }
+}
