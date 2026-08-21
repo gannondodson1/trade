@@ -98,16 +98,22 @@ function displayQty(raw) {
   return (Math.round(Number(raw) * 100) / 100).toFixed(2);
 }
 
+const NUM = String.raw`\d+(?:\.\d+)?`;
+
 function parseFillNote(note) {
-  const share = /Filled\s+([\d.]+)\s+shares\s+at\s+\$?([\d.]+)/i.exec(note || "");
+  const share = new RegExp(`Filled\\s+(${NUM})\\s+shares\\s+at\\s+\\$?(${NUM})`, "i").exec(note || "");
   if (share) {
     return { kind: "shares", qty: Number(share[1]), price: Number(share[2]) };
   }
-  const call = /Filled\s+(\d+)\s+contract[s]?\s+at\s+([\d.]+)/i.exec(note || "");
+  const call = new RegExp(`Filled\\s+(${NUM})\\s+contract[s]?\\s+at\\s+\\$?(${NUM})`, "i").exec(note || "");
   if (call) {
     return { kind: "contract", qty: Number(call[1]), price: Number(call[2]) };
   }
   return null;
+}
+
+function exactPx(n) {
+  return Number(n).toFixed(2);
 }
 
 function openFills(trades) {
@@ -423,8 +429,8 @@ function renderPositions(book, meta) {
     if (mark.bid != null) tape.push(`bid ${money(mark.bid)}`);
     if (mark.option_mark != null) tape.push(`option mark ~${money(mark.option_mark)} vs ${money(fill.notional)} debit`);
 
-    const stopLabel = fill.stop != null ? String(fill.stop) : "—";
-    const targetLabel = fill.target != null ? String(fill.target) : "—";
+    const stopLabel = fill.stop != null ? exactPx(fill.stop) : "—";
+    const targetLabel = fill.target != null ? exactPx(fill.target) : "—";
 
     return `
       <article class="position">

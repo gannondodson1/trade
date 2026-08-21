@@ -29,6 +29,21 @@ const fills = trades.filter((t) => t.event === "fill" && t.side === "buy");
 const closes = trades.filter((t) => t.event === "close" || (t.event === "fill" && t.side === "sell"));
 const deployed = fills.reduce((sum, t) => sum + Number(t.notional), 0);
 
+const NUM = String.raw`\d+(?:\.\d+)?`;
+function parseFillNote(note) {
+  const share = new RegExp(`Filled\\s+(${NUM})\\s+shares\\s+at\\s+\\$?(${NUM})`, "i").exec(note || "");
+  if (share) return { qty: Number(share[1]), price: Number(share[2]) };
+  const call = new RegExp(`Filled\\s+(${NUM})\\s+contract[s]?\\s+at\\s+\\$?(${NUM})`, "i").exec(note || "");
+  if (call) return { qty: Number(call[1]), price: Number(call[2]) };
+  return null;
+}
+
+const fillPrices = {
+  RKLB: parseFillNote(fills.find((t) => t.symbol === "RKLB").note),
+  CRWV: parseFillNote(fills.find((t) => t.symbol === "CRWV").note),
+  SMCI: parseFillNote(fills.find((t) => t.symbol === "SMCI").note),
+};
+
 const checks = [
   ["equity rows", equity.length, 6],
   ["trade rows", trades.length, 6],
@@ -42,6 +57,12 @@ const checks = [
   ["capital deployed", deployed, 488],
   ["closed trades", meta.closed_trades, 0],
   ["updated stamp", meta.updated_et, "Aug 21, 2026, 3:46 PM ET"],
+  ["RKLB fill qty", fillPrices.RKLB.qty, 2.46171],
+  ["RKLB fill price", fillPrices.RKLB.price, 73.12],
+  ["CRWV fill qty", fillPrices.CRWV.qty, 2.03892],
+  ["CRWV fill price", fillPrices.CRWV.price, 88.28],
+  ["SMCI fill qty", fillPrices.SMCI.qty, 1],
+  ["SMCI fill price", fillPrices.SMCI.price, 1.28],
 ];
 
 let failed = 0;
