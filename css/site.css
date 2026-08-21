@@ -449,6 +449,10 @@ main,
   background: var(--orange);
 }
 
+.legend__swatch--spy {
+  background: rgba(238, 232, 223, 0.45);
+}
+
 .chart {
   position: relative;
   height: clamp(230px, 32vw, 320px);

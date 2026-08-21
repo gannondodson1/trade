@@ -18,6 +18,7 @@ Numbers come only from the public log:
 - `data/methodology.md` — how the desk tries to win
 - `data/thinking.md` — current hold / software-stop note
 - `data/changelog.md` — rule changes
+- `data/spy.json` — official Yahoo Finance SPY daily bars only
 
 Derived figures the page is allowed to compute:
 
@@ -26,8 +27,9 @@ Derived figures the page is allowed to compute:
 - Capital deployed = sum of filled notionals still open
 - Realized P/L = $0 while there are no closes
 - Open P/L = dollar P/L − realized
+- Vs S&P 500 = desk total return % minus SPY % from the Aug 20 close (official daily print)
 
-If a comparison (vs S&P 500 / SPY) has no source series in the log, it is omitted. Do not invent marks, win rates, or dates.
+Do not invent intra-day SPY ticks. If a SPY comparison has no official source bar, omit it.
 
 ## Local preview
 

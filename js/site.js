@@ -163,7 +163,7 @@ function parseThinking(md) {
 }
 
 function parseMethodology(md) {
-  const edge = /## Edge\n+([\s\S]*?)\n+## Hard limits/.exec(md);
+  const edge = /## How it picks\n+([\s\S]*?)\n+## Hard limits/.exec(md);
   const limits = /## Hard limits\n+([\s\S]*?)\n+## Evidence/.exec(md);
   const evidence = /## Evidence\n+([\s\S]*)$/.exec(md);
   const lede = md
@@ -279,10 +279,10 @@ function renderKpis(book, meta) {
     book.dollar > 0 ? "up so far" : book.dollar < 0 ? "down so far" : "flat so far";
 
   document.getElementById("kpis").innerHTML = `
-    ${row("Portfolio", `${escapeHtml(money(book.lastEquity))} <span class="sign">${flag}</span>`, `Started at ${escapeHtml(money(book.start))}. Last snapshot from the public equity log.`, "row--hero")}
-    ${row("Total return", `${escapeHtml(signedPct(book.totalReturn))} <span class="sign">${signWord(book.totalReturn)}</span>`, `(Last equity − ${escapeHtml(money(book.start))}) / ${escapeHtml(money(book.start))}. Since the account opened Aug 21, 2026.`)}
+    ${row("Portfolio", `${escapeHtml(money(book.lastEquity))} <span class="sign">${flag}</span>`, `Started at ${escapeHtml(money(book.start))}. Last public snapshot.`, "row--hero")}
+    ${row("Total return", `${escapeHtml(signedPct(book.totalReturn))} <span class="sign">${signWord(book.totalReturn)}</span>`, `Last equity minus ${escapeHtml(money(book.start))}, divided by ${escapeHtml(money(book.start))}. Account opened Aug 21, 2026.`)}
     ${row("Profit or loss", `${escapeHtml(signedMoney(book.dollar))} <span class="sign">${signWord(book.dollar)}</span>`, `Last equity minus the ${escapeHtml(money(book.start))} start.`)}
-    ${row("Cash", escapeHtml(money(book.cash)), "Cash and buying power left after the three filled buys.")}
+    ${row("Cash", escapeHtml(money(book.cash)), "What’s left after the three fills.")}
   `;
 
   const realizedText = book.realized === 0 ? money(0) : "—";
@@ -290,12 +290,24 @@ function renderKpis(book, meta) {
   const deployedParts = book.fills
     .map((f) => money(f.notional, Number.isInteger(Number(f.notional)) ? 0 : 2))
     .join(" + ");
+  const deskPct = Number(book.totalReturn.toFixed(2));
+  const spyClosePct = book.spyClosePct;
+  const vsSpy = spyClosePct == null ? null : Number((deskPct - spyClosePct).toFixed(2));
   document.getElementById("secondary").hidden = false;
   document.getElementById("secondary").innerHTML = `
-    ${row("Realized P/L", escapeHtml(realizedText), "No closes in the log, so realized P/L is $0.")}
+    ${row("Realized P/L", escapeHtml(realizedText), "Nothing’s closed yet, so this is $0.")}
     ${row("Open P/L", `${escapeHtml(openText)} <span class="sign">${book.openPnl == null ? "" : signWord(book.openPnl)}</span>`, "Last equity versus start, minus realized.")}
     ${row("Capital deployed", escapeHtml(money(book.deployed)), `Filled notionals still open (${deployedParts}).`, "is-accent")}
     ${row("Closed trades", escapeHtml(String(book.closed)), "No win rate until something closes.")}
+    ${
+      vsSpy == null
+        ? ""
+        : row(
+            "Vs S&P 500",
+            `${escapeHtml(signedPct(vsSpy))} <span class="sign">${signWord(vsSpy)}</span>`,
+            `Desk ${signedPct(deskPct)} minus SPY ${signedPct(spyClosePct)} from the Aug 20 close. That’s the only definition used here.`
+          )
+    }
   `;
 
   const stamp = meta.updated_et.replace(/^Updated:\s*/i, "");
@@ -313,21 +325,44 @@ function yTicks(min, max) {
   return ticks;
 }
 
-function renderChart(equity, start) {
+function spyOfficialPoints(spy) {
+  if (!spy?.baseline?.close || !spy.bars?.length) return [];
+  const prior = Number(spy.baseline.close);
+  const bar = spy.bars[0];
+  return [
+    { ts: Date.parse("2026-08-20T16:00:00-04:00"), pct: 0, label: "SPY Aug 20 close" },
+    { ts: Date.parse("2026-08-21T09:30:00-04:00"), pct: (Number(bar.open) / prior - 1) * 100, label: "SPY Aug 21 open" },
+    { ts: Date.parse(`${bar.date}T16:00:00-04:00`), pct: (Number(bar.close) / prior - 1) * 100, label: "SPY Aug 21 close" },
+  ];
+}
+
+function renderChart(equity, start, spy) {
   const host = document.getElementById("chart");
   const caption = document.getElementById("chart-caption");
+  const deskLastPct = equity.length ? ((Number(equity.at(-1).equity) - start) / start) * 100 : 0;
+  const spyClosePct = Number(spy?.bars?.[0]?.change_pct);
+  const vs = Number((Number(deskLastPct.toFixed(2)) - spyClosePct).toFixed(2));
   caption.textContent =
-    "Each point is a public snapshot from data/equity.jsonl. Return is (equity − $500) / $500. This log has no S&P 500 or SPY series, so none is drawn.";
+    `Desk is % from the $500 start (last point ${signedPct(deskLastPct)}). SPY is buy-and-hold from the Aug 20 close ($762.60). Official Yahoo Finance daily prints only: Aug 21 open +0.45%, Aug 21 close +0.41%. One session of data so far. Source: ${spy?.source || "Yahoo Finance SPY daily"}. Vs S&P 500 is desk ${signedPct(Number(deskLastPct.toFixed(2)))} minus SPY ${signedPct(spyClosePct)} = ${signedPct(vs)} on that definition. No intra-day SPY ticks were invented.`;
 
   if (!equity.length) {
-    host.innerHTML = `<p class="kpi__note">No equity snapshots yet.</p>`;
+    host.innerHTML = `<p class="loading">No equity snapshots yet.</p>`;
     return;
   }
 
-  const values = equity.map((row) => Number(row.equity));
-  const minV = Math.min(start, ...values);
-  const maxV = Math.max(start, ...values);
-  const pad = Math.max(1.5, (maxV - minV) * 0.28);
+  const desk = equity.map((row) => ({
+    ts: Date.parse(row.ts),
+    pct: ((Number(row.equity) - start) / start) * 100,
+    row,
+  }));
+  const spyPts = spyOfficialPoints(spy);
+  const times = [...desk.map((p) => p.ts), ...spyPts.map((p) => p.ts)];
+  const pcts = [...desk.map((p) => p.pct), ...spyPts.map((p) => p.pct), 0];
+  const t0 = Math.min(...times);
+  const t1 = Math.max(...times);
+  const minV = Math.min(...pcts);
+  const maxV = Math.max(...pcts);
+  const pad = Math.max(0.35, (maxV - minV) * 0.28);
   const lo = minV - pad;
   const hi = maxV + pad;
 
@@ -339,45 +374,47 @@ function renderChart(equity, start) {
   const B = 42;
   const innerW = W - L - R;
   const innerH = H - T - B;
-
-  const xs = equity.map((_, i) => {
-    if (equity.length === 1) return L + innerW / 2;
-    return L + (i / (equity.length - 1)) * innerW;
-  });
+  const xAt = (ts) => L + ((ts - t0) / (t1 - t0 || 1)) * innerW;
   const y = (v) => T + ((hi - v) / (hi - lo)) * innerH;
-  const points = equity.map((row, i) => ({ x: xs[i], y: y(Number(row.equity)), row }));
-  const d = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+
+  const deskPts = desk.map((p) => ({ ...p, x: xAt(p.ts), y: y(p.pct) }));
+  const spyDraw = spyPts.map((p) => ({ ...p, x: xAt(p.ts), y: y(p.pct) }));
+  const deskPath = deskPts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  const spyPath = spyDraw.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
   const ticks = yTicks(lo, hi);
-  const startY = y(start);
-  const last = points.at(-1);
+  const zeroY = y(0);
+  const last = deskPts.at(-1);
+  const spyLast = spyDraw.at(-1);
 
   const grid = ticks
     .map((tick) => {
       const yy = y(tick);
       return `<line x1="${L}" y1="${yy.toFixed(1)}" x2="${W - R}" y2="${yy.toFixed(1)}" stroke="rgba(238,232,223,0.10)" />
-        <text x="${L - 10}" y="${yy + 4}" fill="#8a847a" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="end">${money(tick, tick % 1 === 0 ? 0 : 2)}</text>`;
+        <text x="${L - 10}" y="${yy + 4}" fill="#8a847a" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="end">${signedPct(tick)}</text>`;
     })
     .join("");
 
-  const xLabels = equity
-    .map((row, i) => {
-      if (equity.length > 6 && i !== 0 && i !== equity.length - 1 && i % 2 === 1) return "";
-      return `<text x="${xs[i].toFixed(1)}" y="${H - 14}" fill="#8a847a" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="middle">${escapeHtml(formatTime(row.ts))}</text>`;
-    })
-    .join("");
+  const xLabels = [
+    ...spyDraw.map((p) => `<text x="${p.x.toFixed(1)}" y="${H - 14}" fill="#8a847a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">${escapeHtml(p.label.replace("SPY ", ""))}</text>`),
+    ...deskPts
+      .filter((_, i) => i === 0 || i === deskPts.length - 1)
+      .map((p) => `<text x="${p.x.toFixed(1)}" y="${H - 28}" fill="#8a847a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">${escapeHtml(formatTime(p.row.ts))}</text>`),
+  ].join("");
 
   host.innerHTML = `
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       ${grid}
-      <line x1="${L}" y1="${startY.toFixed(1)}" x2="${W - R}" y2="${startY.toFixed(1)}" stroke="rgba(238,232,223,0.22)" stroke-dasharray="4 5" />
-      <path d="${d}" fill="none" stroke="#f25c12" stroke-width="2.2" />
-      ${points
-        .map(
-          (p) =>
-            `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.4" fill="#0d0d0d" stroke="#f25c12" stroke-width="1.6" />`
-        )
+      <line x1="${L}" y1="${zeroY.toFixed(1)}" x2="${W - R}" y2="${zeroY.toFixed(1)}" stroke="rgba(238,232,223,0.22)" stroke-dasharray="4 5" />
+      <path d="${spyPath}" fill="none" stroke="rgba(238,232,223,0.42)" stroke-width="1.5" />
+      ${spyDraw
+        .map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#0d0d0d" stroke="rgba(238,232,223,0.55)" stroke-width="1.4" />`)
         .join("")}
-      <text x="${W - R + 10}" y="${last.y + 4}" fill="#eee8df" font-size="12" font-family="IBM Plex Mono, monospace">${escapeHtml(signedPct(((last.row.equity - start) / start) * 100))} book</text>
+      <path d="${deskPath}" fill="none" stroke="#f25c12" stroke-width="2.2" />
+      ${deskPts
+        .map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.4" fill="#0d0d0d" stroke="#f25c12" stroke-width="1.6" />`)
+        .join("")}
+      <text x="${W - R + 10}" y="${last.y + 4}" fill="#eee8df" font-size="12" font-family="IBM Plex Mono, monospace">${escapeHtml(signedPct(last.pct))} desk</text>
+      <text x="${W - R + 10}" y="${spyLast.y + 16}" fill="#c4bdb2" font-size="11" font-family="IBM Plex Mono, monospace">${escapeHtml(signedPct(spyClosePct))} SPY</text>
       ${xLabels}
     </svg>
     <div class="chart-tip" hidden></div>
@@ -385,7 +422,7 @@ function renderChart(equity, start) {
 
   const svg = host.querySelector("svg");
   const tip = host.querySelector(".chart-tip");
-  const hit = points.map((p) => {
+  const bind = (p, html) => {
     const el = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     el.setAttribute("cx", p.x.toFixed(1));
     el.setAttribute("cy", p.y.toFixed(1));
@@ -393,9 +430,8 @@ function renderChart(equity, start) {
     el.setAttribute("fill", "transparent");
     el.style.cursor = "crosshair";
     el.addEventListener("pointerenter", (ev) => {
-      const ret = ((Number(p.row.equity) - start) / start) * 100;
       tip.hidden = false;
-      tip.innerHTML = `<strong>${escapeHtml(formatClock(p.row.ts))} ET</strong><br>Equity ${escapeHtml(money(p.row.equity))} (${escapeHtml(signedPct(ret))})<br>Cash ${escapeHtml(money(p.row.cash))}<br>${escapeHtml(p.row.note || "")}`;
+      tip.innerHTML = html;
       const rect = host.getBoundingClientRect();
       tip.style.left = `${ev.clientX - rect.left}px`;
       tip.style.top = `${ev.clientY - rect.top}px`;
@@ -404,9 +440,16 @@ function renderChart(equity, start) {
       tip.hidden = true;
     });
     svg.appendChild(el);
-    return el;
+  };
+  deskPts.forEach((p) => {
+    bind(
+      p,
+      `<strong>${escapeHtml(formatClock(p.row.ts))} ET</strong><br>Desk ${escapeHtml(signedPct(p.pct))}<br>Equity ${escapeHtml(money(p.row.equity))}<br>${escapeHtml(p.row.note || "")}`
+    );
   });
-  void hit;
+  spyDraw.forEach((p) => {
+    bind(p, `<strong>${escapeHtml(p.label)}</strong><br>${escapeHtml(signedPct(p.pct))}<br>Yahoo Finance daily`);
+  });
 }
 
 function renderMethodology(md) {
@@ -414,11 +457,11 @@ function renderMethodology(md) {
   document.getElementById("method-lede").textContent = parsed.lede;
   document.getElementById("methodology").innerHTML = `
     <div class="doctrine__col">
-      <h3>02.1 / Two lenses</h3>
+      <h3>How it picks</h3>
       ${mdBlocks(parsed.edge)}
     </div>
     <div class="doctrine__col">
-      <h3>02.2 / Hard limits</h3>
+      <h3>Hard limits</h3>
       ${mdBlocks(parsed.limits)}
       <p class="split__foot">${mdInline(parsed.evidence)}</p>
     </div>
@@ -430,7 +473,7 @@ function renderThinking(thought) {
   if (!host) return;
   const preamble = thought.preamble.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
   host.innerHTML = `
-    <p class="label">After-close stance</p>
+    <p class="hud-label">After the close</p>
     <p class="thought__status">${escapeHtml(thought.status)}</p>
     ${preamble}
   `;
@@ -617,20 +660,22 @@ async function main() {
   }
 
   try {
-    const [meta, equity, trades, methodology, thinking, changelog] = await Promise.all([
+    const [meta, equity, trades, methodology, thinking, changelog, spy] = await Promise.all([
       loadJson("meta.json"),
       loadJsonl("equity.jsonl"),
       loadJsonl("trades.jsonl"),
       loadText("methodology.md"),
       loadText("thinking.md"),
       loadText("changelog.md"),
+      loadJson("spy.json"),
     ]);
 
     const book = computeBook(meta, equity, trades);
+    book.spyClosePct = Number(spy?.bars?.[0]?.change_pct);
     const thought = parseThinking(thinking);
     if (thought.updated) meta.updated_et = thought.updated;
     renderKpis(book, meta);
-    renderChart(equity, book.start);
+    renderChart(equity, book.start, spy);
     renderMethodology(methodology);
     renderThinking(thought);
     renderPositions(book, thought);
