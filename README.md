@@ -1,6 +1,6 @@
-# Gannon’s public desk
+# Gannon’s Agentic Trader
 
-Public tracker for a $500 Robinhood Agentic experiment. The trading bot owns the book and writes a public-safe log. This repository is the website only.
+Public tracker for a $500 Robinhood Agentic experiment. The trading bot owns the book and writes a public-safe log. This repository is the website only. The public wordmark is AGENTIC.
 
 Live project site (after GitHub Pages is enabled):
 

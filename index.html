@@ -3,163 +3,191 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gannon’s public desk</title>
+    <title>Gannon’s Agentic Trader</title>
     <meta
       name="description"
-      content="Public $500 Robinhood Agentic experiment. Software stops. Visible book. Gannon Dodson’s trading desk."
+      content="Gannon’s Agentic Trader — public $500 Robinhood Agentic experiment. Software stops. Visible book. Not trading advice."
+    />
+    <meta property="og:title" content="Gannon’s Agentic Trader" />
+    <meta
+      property="og:description"
+      content="Public log of a personal $500 experiment. Not trading advice. You can lose money."
     />
     <meta name="theme-color" content="#0d0d0d" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Caveat:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./css/site.css" />
   </head>
   <body>
-    <a class="skip" href="#performance">Skip to performance</a>
+    <a class="skip" href="#performance">Skip to ledger</a>
+    <div class="atmosphere" aria-hidden="true"></div>
+    <canvas class="trail" aria-hidden="true"></canvas>
 
     <p class="rail" role="note">
       <span>Not trading advice</span>
-      <span aria-hidden="true">·</span>
+      <span aria-hidden="true">/</span>
       <span>Personal $500 log</span>
-      <span aria-hidden="true">·</span>
+      <span aria-hidden="true">/</span>
       <span>You can lose money</span>
     </p>
 
+    <div class="frame" aria-hidden="true">
+      <p class="frame__tl" id="coords">X 0.00&nbsp;&nbsp;Y 0.00</p>
+      <p class="frame__tr" id="updated-stamp">last mark 5:49 PM ET</p>
+      <p class="frame__bl">scroll to the book</p>
+      <p class="frame__br">v.01 — the department is the book</p>
+    </div>
+
     <header class="mast">
-      <div class="mast__top">
-        <div class="mast__brand">
-          <p class="tag">public book</p>
-          <h1 class="wordmark">Gannon’s<br />public desk</h1>
-          <p class="lede">
-            A public $500 experiment. Software stops. The book stays visible.
-          </p>
-          <p class="notice">
-            This is a public log of a personal $500 experiment. It is not
-            advice and not a recommendation to buy or sell anything. A past
-            result here does not mean a future one. You can lose money.
-          </p>
-        </div>
-        <div class="mast__meta">
-          <p class="updated">
-            <span class="updated__dot" aria-hidden="true"></span>
-            <span id="updated-stamp">Updated Aug 21, 2026, 5:08 PM ET (after close)</span>
-          </p>
-          <a class="ghost" href="#how-it-works">The rules</a>
+      <p class="note note--a">public log</p>
+      <p class="note note--b">not a pitch →</p>
+      <h1 class="wordmark">AGENTIC</h1>
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee__track">
+          <span>AGENTIC</span><span>AGENTIC</span><span>AGENTIC</span
+          ><span>AGENTIC</span><span>AGENTIC</span><span>AGENTIC</span>
         </div>
       </div>
+      <p class="name">Gannon’s Agentic Trader</p>
+      <p class="lede">
+        A public $500 experiment. Software stops. The book stays visible.
+      </p>
+      <p class="notice">
+        This is a public log of a personal $500 experiment. It is not advice
+        and not a recommendation to buy or sell anything. A past result here
+        does not mean a future one. You can lose money.
+      </p>
     </header>
 
-    <nav class="nav" aria-label="On this page">
-      <div class="nav__rule"></div>
-      <ul>
-        <li><a href="#performance">Performance</a></li>
-        <li><a href="#how-it-works">How it works</a></li>
-        <li><a href="#holdings">Holdings</a></li>
-        <li><a href="#reasoning">Reasoning</a></li>
-        <li><a href="#improvements">Improvements</a></li>
-      </ul>
-      <div class="nav__rule"></div>
+    <nav class="pill" aria-label="Chapters">
+      <a href="#performance" class="is-active"><b>01</b> Ledger</a>
+      <a href="#how-it-works"><b>02</b> Doctrine</a>
+      <a href="#holdings"><b>03</b> Book</a>
+      <a href="#reasoning"><b>04</b> Record</a>
+      <a href="#improvements"><b>05</b> Revisions</a>
     </nav>
 
     <main>
-      <section id="performance" class="section">
-        <div id="kpis" class="panel kpis" aria-live="polite">
-          <p class="loading">Loading the public book…</p>
-        </div>
-        <div id="secondary" class="panel kpis kpis--secondary" hidden></div>
-
-        <figure class="panel chart-wrap">
-          <div class="chart-head">
-            <p class="label">Desk equity since the $500 start</p>
-            <p class="legend">
-              <span class="legend__swatch" aria-hidden="true"></span>
-              Desk (snapshot equity)
+      <section id="performance" class="chapter">
+        <header class="chapter__head">
+          <p class="chapter__no">01</p>
+          <div>
+            <h2>LEDGER</h2>
+            <p class="chapter__sub">
+              Public snapshots only. No index overlay — this log has no SPY
+              series.
             </p>
           </div>
-          <div id="chart" class="chart" role="img" aria-label="Desk equity over time"></div>
+        </header>
+        <div id="kpis" class="rows" aria-live="polite">
+          <p class="loading">Loading the public book…</p>
+        </div>
+        <div id="secondary" class="rows rows--tight" hidden></div>
+        <figure class="plot">
+          <div class="plot__head">
+            <p class="hud-label">01.2 / equity since the $500 start</p>
+            <p class="legend">
+              <span class="legend__swatch" aria-hidden="true"></span>
+              Book (snapshot equity)
+            </p>
+          </div>
+          <div id="chart" class="chart" role="img" aria-label="Book equity over time"></div>
           <figcaption class="caption" id="chart-caption"></figcaption>
         </figure>
       </section>
 
-      <section id="how-it-works" class="section section--win">
-        <header class="section__head">
-          <h2>How the desk tries to win</h2>
-          <p id="method-lede" class="section__sub"></p>
+      <section id="how-it-works" class="chapter">
+        <header class="chapter__head">
+          <p class="chapter__no">02</p>
+          <div>
+            <h2>DOCTRINE</h2>
+            <p id="method-lede" class="chapter__sub"></p>
+          </div>
         </header>
-        <div id="methodology" class="split"></div>
+        <div id="methodology" class="doctrine"></div>
       </section>
 
-      <section id="holdings" class="section">
-        <header class="section__head">
-          <h2>What it owns right now</h2>
-          <p class="section__sub">
-            Open names from the public fills. Current stance is the after-close
-            note in data/thinking.md. Share counts are rounded for display;
-            logged cost, stop, and target stay exact.
-          </p>
+      <section id="holdings" class="chapter">
+        <header class="chapter__head">
+          <p class="chapter__no">03</p>
+          <div>
+            <h2>BOOK</h2>
+            <p class="chapter__sub">
+              Open names from the public fills. Current stance is the after-close
+              note in data/thinking.md. Share counts are rounded for display;
+              logged cost, stop, and target stay exact.
+            </p>
+          </div>
         </header>
         <div id="thinking" class="thought"></div>
-        <div id="positions" class="positions"></div>
+        <div id="positions" class="drawer"></div>
         <div id="waitlist" class="waitlist"></div>
         <p class="center-note">
           Written for normal people. After-close research is not a live broker
           mark. Private account details are removed.
         </p>
-
         <div class="triggers">
           <h3>What would make it do something Monday</h3>
           <ul id="triggers"></ul>
         </div>
       </section>
 
-      <section id="reasoning" class="section">
-        <header class="section__head">
-          <h2>Trade reasoning</h2>
-          <p class="section__sub">
-            The simple version first, then the map behind each filled buy.
-          </p>
+      <section id="reasoning" class="chapter">
+        <header class="chapter__head">
+          <p class="chapter__no">04</p>
+          <div>
+            <h2>RECORD</h2>
+            <p class="chapter__sub">
+              The simple version first, then the map behind each filled buy.
+              Theses stay as logged.
+            </p>
+          </div>
         </header>
-        <div id="trades" class="log"></div>
+        <div id="trades" class="record"></div>
       </section>
 
-      <section id="improvements" class="section">
-        <header class="section__head">
-          <h2>Improvements</h2>
-          <p class="section__sub">
-            Rule changes stay on the public record. No silent edits. The latest
-            is the two-lens desk and the weekday Research feed.
-          </p>
+      <section id="improvements" class="chapter">
+        <header class="chapter__head">
+          <p class="chapter__no">05</p>
+          <div>
+            <h2>REVISIONS</h2>
+            <p class="chapter__sub">
+              Rule changes stay on the public record. No silent edits. The latest
+              is the two-lens book and the weekday Research feed.
+            </p>
+          </div>
         </header>
-        <div id="changelog" class="changelog"></div>
+        <div id="changelog" class="revisions"></div>
       </section>
     </main>
 
     <footer class="foot">
+      <p class="foot__brand">Gannon’s Agentic Trader</p>
       <p>
-        Gannon’s public desk. A Robinhood Agentic experiment on a dedicated
-        $500 account. This site reads public-safe files in
-        <code>data/</code>. No account numbers, order IDs, credentials, or raw
-        prompts appear here.
+        A Robinhood Agentic experiment on a dedicated $500 account. This site
+        reads public-safe files in <code>data/</code>. No account numbers, order
+        IDs, credentials, or raw prompts appear here.
       </p>
       <p class="foot__dim">
         Broker-synced numbers come from the public log, not a live private API
         call in your browser.
       </p>
       <p class="foot__notice" id="disclaimer">
-        Not trading advice. This site is Gannon’s public log of a personal
-        $500 experiment. It does not tell you to buy or sell. What the book
-        did so far does not mean it will do that again. You can lose money.
+        Not trading advice. This site is Gannon’s public log of a personal $500
+        experiment. It does not tell you to buy or sell. What the book did so
+        far does not mean it will do that again. You can lose money.
       </p>
     </footer>
 
     <noscript>
       <p class="noscript">
-        This desk is a static page that fetches JSON and markdown from
-        <code>data/</code>. Turn on JavaScript to read the book.
+        This page fetches JSON and markdown from <code>data/</code>. Turn on
+        JavaScript to read the book.
       </p>
     </noscript>
     <script type="module" src="./js/site.js"></script>

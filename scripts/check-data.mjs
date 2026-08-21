@@ -56,7 +56,7 @@ const checks = [
   ["total return %", Number(totalReturn.toFixed(2)), 1.08],
   ["capital deployed", deployed, 488],
   ["closed trades", meta.closed_trades, 0],
-  ["updated stamp", meta.updated_et, "Aug 21, 2026, 5:08 PM ET"],
+  ["updated stamp", meta.updated_et, "Aug 21, 2026, 5:49 PM ET"],
   ["meta has no invented marks", meta.marks == null, true],
   ["RKLB fill qty", fillPrices.RKLB.qty, 2.46171],
   ["RKLB fill price", fillPrices.RKLB.price, 73.12],
@@ -92,14 +92,18 @@ const copyChecks = [
     changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
     5,
   ],
-  ["thinking after close", thinking.includes("5:08 PM ET (after close)"), true],
+  ["thinking after close", thinking.includes("5:49 PM ET (after close)"), true],
   ["thinking Monday triggers", thinking.includes("What would make it do something Monday"), true],
   ["thinking Friday close", thinking.includes("~$72.57"), true],
+  ["thinking social-arb waitlist", thinking.includes("ELF first"), true],
+  ["thinking open-book social check", thinking.includes("Open-book social check"), true],
   ["thinking does not invent option mark", thinking.includes("134") === false, true],
   ["logged RKLB thesis unchanged", rklbThesis.includes("$123M to $234M"), true],
   ["disclaimer in hero", readFileSync(join(root, "index.html"), "utf8").includes("not a recommendation to buy or sell"), true],
   ["disclaimer in footer", readFileSync(join(root, "index.html"), "utf8").includes("Not trading advice. This site is Gannon"), true],
   ["disclaimer rail", readFileSync(join(root, "index.html"), "utf8").includes("Personal $500 log"), true],
+  ["page title retitled", readFileSync(join(root, "index.html"), "utf8").includes("<title>Gannon’s Agentic Trader</title>"), true],
+  ["wordmark AGENTIC", readFileSync(join(root, "index.html"), "utf8").includes("AGENTIC"), true],
 ];
 for (const [name, got, want] of copyChecks) {
   if (got !== want) {
@@ -110,10 +114,18 @@ for (const [name, got, want] of copyChecks) {
   }
 }
 
-const banned = ["Tradey", "Claudey", "farzad.money", "Tradey proposes"];
+const banned = [
+  "Tradey",
+  "Claudey",
+  "farzad.money",
+  "Tradey proposes",
+  "Gannon’s public desk",
+  "Gannon's public desk",
+];
 for (const file of [
   "index.html",
   "js/site.js",
+  "404.html",
   "README.md",
   "data/methodology.md",
   "data/thinking.md",
