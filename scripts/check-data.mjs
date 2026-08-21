@@ -95,7 +95,8 @@ const copyChecks = [
   ["methodology how it picks", methodology.includes("## How it picks"), true],
   ["methodology social-arb math limit", methodology.includes("A social-arb idea still has to clear the same math"), true],
   ["changelog loop item is original", changelog.includes("15-minute regular-hours checks, software stops"), true],
-  ["changelog research feed item", changelog.includes("Research feed + social arb"), true],
+  ["changelog research feed item", changelog.includes("Two-lens desk + Research feed"), true],
+  ["changelog loop heading", changelog.includes("15-minute loop"), true],
   ["changelog name-off item", changelog.includes("Name off the public page"), true],
   [
     "changelog heading count",
