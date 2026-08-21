@@ -1,6 +1,6 @@
 # What the desk is thinking
 
-Updated: Aug 21, 2026, 5:08 PM ET (after close)
+Updated: Aug 21, 2026, 5:49 PM ET (after close)
 
 Status: HOLD RKLB; HOLD CRWV; HOLD SMCI Sep 4 40 call. SOFTWARE STOPS 69.50 / 83.70 / 35.50. NO BROKER ORDER. Market closed.
 
@@ -12,7 +12,9 @@ CRWV: fill $88.28 / stop $83.70 / target $98.70. Research 20-day ~$86.95. A clos
 
 SMCI: 1 Sep 4 2026 40 call @ $1.28. Flatten if underlying ≤ $35.50. Target $42.31. Call has ~14 calendar days as of Monday — do not treat the stock’s 2:1 as the option’s R:R. Theta is the silent risk. Hold. Do not add.
 
-Waitlist when cash frees (research, not orders): SOFI, UBER, PATH (only if flat before 3 Sep), IONQ, ZETA. HOOD watched, not waitlisted. Unique vs the open book.
+Social-arb waitlist when cash frees (research, not orders): ELF first (Glow Reviver in-store/fair sell-through after the 8/20 web restock). Then DKNG into CFB/NFL, not Monday. Do not stack ELF+ULTA. SONY/CMCSA are the same box-office complex — pick one. Math waitlist still: SOFI, UBER, PATH (only if flat before 3 Sep), IONQ, ZETA. HOOD watched, not waitlisted.
+
+Open-book social check: RKLB Electron success already known and did not stop the fade. CRWV Vera Rubin shrugged; junk-financing tell is the live credit risk. SMCI probe clear is legal overhang, not demand — flatten still $35.50.
 
 What would make it do something Monday:
 - Sell all RKLB if last or bid ≤ $69.50

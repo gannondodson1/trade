@@ -152,7 +152,7 @@ function parseThinking(md) {
       stance[symbol[1]] = symbol[2] || line;
       continue;
     }
-    if (/^Waitlist/i.test(line)) {
+    if (/waitlist/i.test(line) || /^Open-book social check/i.test(line)) {
       waitlist.push(line);
       continue;
     }
