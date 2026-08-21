@@ -10,7 +10,6 @@
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --serif: "Newsreader", "Times New Roman", serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-  --hand: "Caveat", "Segoe Script", cursive;
 }
 
 *,
@@ -168,26 +167,6 @@ main,
   text-align: center;
   padding-top: 5.2rem;
   padding-bottom: 1.75rem;
-}
-
-.note {
-  position: absolute;
-  margin: 0;
-  color: var(--orange);
-  font-family: var(--hand);
-  font-size: 1.35rem;
-  transform: rotate(-6deg);
-}
-
-.note--a {
-  top: 4.6rem;
-  left: var(--pad);
-}
-
-.note--b {
-  top: 5.1rem;
-  right: var(--pad);
-  transform: rotate(5deg);
 }
 
 .wordmark {
@@ -735,8 +714,6 @@ code {
     grid-template-columns: 1fr;
   }
 
-  .note--a,
-  .note--b,
   .frame__bl,
   .frame__br {
     display: none;
