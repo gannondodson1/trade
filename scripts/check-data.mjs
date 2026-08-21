@@ -97,6 +97,9 @@ const copyChecks = [
   ["thinking Friday close", thinking.includes("~$72.57"), true],
   ["thinking does not invent option mark", thinking.includes("134") === false, true],
   ["logged RKLB thesis unchanged", rklbThesis.includes("$123M to $234M"), true],
+  ["disclaimer in hero", readFileSync(join(root, "index.html"), "utf8").includes("not a recommendation to buy or sell"), true],
+  ["disclaimer in footer", readFileSync(join(root, "index.html"), "utf8").includes("Not trading advice. This site is Gannon"), true],
+  ["disclaimer rail", readFileSync(join(root, "index.html"), "utf8").includes("Personal $500 log"), true],
 ];
 for (const [name, got, want] of copyChecks) {
   if (got !== want) {
