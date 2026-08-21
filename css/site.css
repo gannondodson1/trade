@@ -423,6 +423,36 @@ main,
   font-size: 0.75rem;
 }
 
+.thought,
+.waitlist {
+  margin-bottom: 1.15rem;
+  padding: 1.35rem 1.4rem 1.25rem;
+  border: 1px solid var(--line);
+}
+
+.thought__status {
+  margin: 0 0 0.75rem;
+  color: var(--bone);
+  font-size: 0.95rem;
+}
+
+.thought p:last-child,
+.waitlist p:last-child {
+  margin-bottom: 0;
+}
+
+.thought p,
+.waitlist p {
+  margin: 0.55rem 0 0;
+  color: var(--bone-soft);
+  font-size: 0.95rem;
+}
+
+.waitlist {
+  margin-top: 0.85rem;
+  margin-bottom: 0;
+}
+
 .positions {
   display: flex;
   flex-direction: column;

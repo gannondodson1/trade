@@ -56,7 +56,8 @@ const checks = [
   ["total return %", Number(totalReturn.toFixed(2)), 1.08],
   ["capital deployed", deployed, 488],
   ["closed trades", meta.closed_trades, 0],
-  ["updated stamp", meta.updated_et, "Aug 21, 2026, 3:46 PM ET"],
+  ["updated stamp", meta.updated_et, "Aug 21, 2026, 5:08 PM ET"],
+  ["meta has no invented marks", meta.marks == null, true],
   ["RKLB fill qty", fillPrices.RKLB.qty, 2.46171],
   ["RKLB fill price", fillPrices.RKLB.price, 73.12],
   ["CRWV fill qty", fillPrices.CRWV.qty, 2.03892],
@@ -78,6 +79,8 @@ for (const [name, got, want] of checks) {
 
 const methodology = read("methodology.md");
 const changelog = read("changelog.md");
+const thinking = read("thinking.md");
+const rklbThesis = fills.find((t) => t.symbol === "RKLB").thesis;
 const copyChecks = [
   ["methodology names Camillo", methodology.includes("Chris Camillo"), true],
   ["methodology names social arbitrage", methodology.includes("Social arbitrage"), true],
@@ -89,6 +92,11 @@ const copyChecks = [
     changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
     5,
   ],
+  ["thinking after close", thinking.includes("5:08 PM ET (after close)"), true],
+  ["thinking Monday triggers", thinking.includes("What would make it do something Monday"), true],
+  ["thinking Friday close", thinking.includes("~$72.57"), true],
+  ["thinking does not invent option mark", thinking.includes("134") === false, true],
+  ["logged RKLB thesis unchanged", rklbThesis.includes("$123M to $234M"), true],
 ];
 for (const [name, got, want] of copyChecks) {
   if (got !== want) {

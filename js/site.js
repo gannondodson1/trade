@@ -125,15 +125,41 @@ function openFills(trades) {
   return trades.filter((t) => t.event === "fill" && t.side === "buy" && !closes.has(t.symbol));
 }
 
-function parseTriggers(thinking) {
-  const idx = thinking.indexOf("What would make it do something:");
-  if (idx === -1) return [];
-  return thinking
-    .slice(idx)
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.startsWith("- "))
-    .map((line) => line.slice(2).trim());
+function parseThinking(md) {
+  const lines = md.split(/\r?\n/);
+  const updated = (md.match(/^Updated:\s*(.+)$/m) || [])[1]?.trim() || "";
+  const status = (md.match(/^Status:\s*(.+)$/m) || [])[1]?.trim() || "";
+  const stance = {};
+  const preamble = [];
+  const waitlist = [];
+  let inTriggers = false;
+  const triggers = [];
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line || line.startsWith("# ")) continue;
+    if (/^Updated:/i.test(line) || /^Status:/i.test(line)) continue;
+    if (/^What would make it do something/i.test(line)) {
+      inTriggers = true;
+      continue;
+    }
+    if (inTriggers) {
+      if (line.startsWith("- ")) triggers.push(line.slice(2).trim());
+      continue;
+    }
+    const symbol = /^(RKLB|CRWV|SMCI)\b[:.]?\s*(.*)$/.exec(line);
+    if (symbol) {
+      stance[symbol[1]] = symbol[2] || line;
+      continue;
+    }
+    if (/^Waitlist/i.test(line)) {
+      waitlist.push(line);
+      continue;
+    }
+    preamble.push(line);
+  }
+
+  return { updated, status, preamble, stance, waitlist, triggers };
 }
 
 function parseMethodology(md) {
@@ -422,11 +448,21 @@ function renderMethodology(md) {
   `;
 }
 
-function renderPositions(book, meta) {
-  const marks = meta.marks || {};
+function renderThinking(thought) {
+  const host = document.getElementById("thinking");
+  if (!host) return;
+  const preamble = thought.preamble.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
+  host.innerHTML = `
+    <p class="label">After-close stance</p>
+    <p class="thought__status">${escapeHtml(thought.status)}</p>
+    ${preamble}
+  `;
+}
+
+function renderPositions(book, thought) {
+  const stance = thought?.stance || {};
   const cards = book.fills.map((fill) => {
     const parsed = parseFillNote(fill.note);
-    const mark = marks[fill.symbol] || {};
     const isOption = Boolean(fill.instrument);
     let sub;
     if (isOption) {
@@ -443,11 +479,7 @@ function renderPositions(book, meta) {
     if (fill.stop != null) lastBits.push(`Sell safety line ${money(fill.stop)}`);
     if (fill.target != null) lastBits.push(`Profit target ${money(fill.target)}`);
 
-    const tape = [];
-    if (mark.last != null) tape.push(isOption ? `Underlying last ${money(mark.last)}` : `Last ${money(mark.last)}`);
-    if (mark.bid != null) tape.push(`bid ${money(mark.bid)}`);
-    if (mark.option_mark != null) tape.push(`option mark ~${money(mark.option_mark)} vs ${money(fill.notional)} debit`);
-
+    const now = stance[fill.symbol];
     const stopLabel = fill.stop != null ? exactPx(fill.stop) : "—";
     const targetLabel = fill.target != null ? exactPx(fill.target) : "—";
 
@@ -460,7 +492,7 @@ function renderPositions(book, meta) {
           </div>
         </div>
         <p class="position__detail">${lastBits.join(" · ")}</p>
-        ${tape.length ? `<p class="position__detail">${escapeHtml(tape.join(" · "))}</p>` : ""}
+        ${now ? `<p class="position__detail">${escapeHtml(now)}</p>` : ""}
         <p class="position__foot">software stop ${escapeHtml(stopLabel)} or target ${escapeHtml(targetLabel)}</p>
       </article>
     `;
@@ -468,8 +500,18 @@ function renderPositions(book, meta) {
   document.getElementById("positions").innerHTML = cards.join("") || "<p class='kpi__note'>No open fills.</p>";
 }
 
-function renderTriggers(thinking) {
-  const items = parseTriggers(thinking);
+function renderWaitlist(thought) {
+  const host = document.getElementById("waitlist");
+  if (!host) return;
+  if (!thought.waitlist.length) {
+    host.innerHTML = "";
+    return;
+  }
+  host.innerHTML = thought.waitlist.map((line) => `<p>${escapeHtml(line)}</p>`).join("");
+}
+
+function renderTriggers(thought) {
+  const items = thought.triggers || [];
   document.getElementById("triggers").innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 }
 
@@ -558,11 +600,15 @@ async function main() {
     ]);
 
     const book = computeBook(meta, equity, trades);
+    const thought = parseThinking(thinking);
+    if (thought.updated) meta.updated_et = thought.updated;
     renderKpis(book, meta);
     renderChart(equity, book.start);
     renderMethodology(methodology);
-    renderPositions(book, meta);
-    renderTriggers(thinking);
+    renderThinking(thought);
+    renderPositions(book, thought);
+    renderWaitlist(thought);
+    renderTriggers(thought);
     renderTrades(book.fills);
     renderChangelog(changelog);
     watchNav();
