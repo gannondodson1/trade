@@ -403,13 +403,18 @@ main,
   margin: 0 0 0.85rem;
 }
 
-.split__col ul {
-  margin: 0;
-  padding-left: 1.05rem;
+.split__col ul,
+.split__col ol {
+  margin: 0 0 0.85rem;
+  padding-left: 1.15rem;
+}
+
+.split__col ol {
+  padding-left: 1.25rem;
 }
 
 .split__col li + li {
-  margin-top: 0.45rem;
+  margin-top: 0.55rem;
 }
 
 .split__foot {

@@ -76,6 +76,29 @@ for (const [name, got, want] of checks) {
   }
 }
 
+const methodology = read("methodology.md");
+const changelog = read("changelog.md");
+const copyChecks = [
+  ["methodology names Camillo", methodology.includes("Chris Camillo"), true],
+  ["methodology names social arbitrage", methodology.includes("Social arbitrage"), true],
+  ["methodology social-arb hard limit", methodology.includes("Social-arb ideas still have to clear the same math"), true],
+  ["changelog loop item is original", changelog.includes("15-minute regular-hours checks, software stops"), true],
+  ["changelog two-lens item", changelog.includes("Two-lens desk + Research feed"), true],
+  [
+    "changelog heading count",
+    changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
+    5,
+  ],
+];
+for (const [name, got, want] of copyChecks) {
+  if (got !== want) {
+    failed += 1;
+    console.error(`FAIL ${name}: got ${JSON.stringify(got)}, want ${JSON.stringify(want)}`);
+  } else {
+    console.log(`ok   ${name}: ${JSON.stringify(got)}`);
+  }
+}
+
 const banned = ["Tradey", "Claudey", "farzad.money", "Tradey proposes"];
 for (const file of [
   "index.html",

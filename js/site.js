@@ -159,37 +159,56 @@ function mdInline(text) {
 function mdBlocks(text) {
   const lines = text.split(/\r?\n/);
   const out = [];
-  let list = [];
+  let ul = [];
+  let ol = [];
 
-  const flushList = () => {
-    if (!list.length) return;
-    out.push(`<ul>${list.map((item) => `<li>${mdInline(item)}</li>`).join("")}</ul>`);
-    list = [];
+  const flushUl = () => {
+    if (!ul.length) return;
+    out.push(`<ul>${ul.map((item) => `<li>${mdInline(item)}</li>`).join("")}</ul>`);
+    ul = [];
+  };
+  const flushOl = () => {
+    if (!ol.length) return;
+    out.push(`<ol>${ol.map((item) => `<li>${mdInline(item)}</li>`).join("")}</ol>`);
+    ol = [];
+  };
+  const flushLists = () => {
+    flushUl();
+    flushOl();
   };
 
   for (const raw of lines) {
     const line = raw.trim();
     if (!line) {
-      flushList();
+      flushLists();
       continue;
     }
     if (line.startsWith("- ")) {
-      list.push(line.slice(2));
+      flushOl();
+      ul.push(line.slice(2));
       continue;
     }
-    flushList();
+    const numbered = /^(\d+)\.\s+(.+)$/.exec(line);
+    if (numbered) {
+      flushUl();
+      ol.push(numbered[2]);
+      continue;
+    }
+    flushLists();
     out.push(`<p>${mdInline(line)}</p>`);
   }
-  flushList();
+  flushLists();
   return out.join("");
 }
 
 function parseChangelog(md) {
   const chunks = md.split(/^## /m).map((c) => c.trim()).filter(Boolean);
-  return chunks.map((chunk) => {
-    const [title, ...rest] = chunk.split(/\r?\n/);
-    return { title: title.trim(), body: rest.join("\n").trim() };
-  });
+  return chunks
+    .filter((chunk) => !chunk.startsWith("#"))
+    .map((chunk) => {
+      const [title, ...rest] = chunk.split(/\r?\n/);
+      return { title: title.trim(), body: rest.join("\n").trim() };
+    });
 }
 
 function computeBook(meta, equity, trades) {
@@ -392,7 +411,7 @@ function renderMethodology(md) {
   document.getElementById("method-lede").textContent = parsed.lede;
   document.getElementById("methodology").innerHTML = `
     <div class="split__col">
-      <h3>The edge it is pursuing</h3>
+      <h3>The two lenses</h3>
       ${mdBlocks(parsed.edge)}
     </div>
     <div class="split__col">
