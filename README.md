@@ -17,6 +17,7 @@ Numbers come only from the public log:
 - `data/trades.jsonl` — intents and fills (no account numbers or order IDs)
 - `data/methodology.md` — how the desk tries to win
 - `data/team.md` — named agents on the public page
+- `data/pipeline.json` — public stage labels only; Owned is the open fills
 - `data/thinking.md` — current hold / software-stop note
 - `data/research.md` — waitlist and open-book social check (research, not orders)
 - `data/changelog.md` — rule changes

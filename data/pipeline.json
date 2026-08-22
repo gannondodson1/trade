@@ -1,0 +1,12 @@
+{
+  "note": "Public skeleton only. Empty stages have no public names. Owned is the open fills already on this page. Waitlist stays in Open research.",
+  "flow": [
+    "Discovery",
+    "Research",
+    "High Conviction",
+    "Red Team",
+    "Risk",
+    "Trade Ready"
+  ],
+  "terminals": ["Owned", "Rejected"]
+}

@@ -518,6 +518,42 @@ function renderMethodology(md) {
   `;
 }
 
+function renderPipeline(spec, book) {
+  const lede = document.getElementById("pipe-lede");
+  const host = document.getElementById("pipe");
+  if (lede) lede.textContent = spec?.note || "Public skeleton only.";
+  if (!host) return;
+
+  const owned = (book.fills || []).map((fill) =>
+    fill.instrument ? fill.instrument : fill.symbol
+  );
+  const flow = spec?.flow || [];
+  const terminals = spec?.terminals || ["Owned", "Rejected"];
+
+  const stage = (label, names) => {
+    const body = names.length
+      ? names.map((name) => `<p class="pipe__name">${escapeHtml(name)}</p>`).join("")
+      : `<p class="pipe__empty">—</p>`;
+    return `
+      <li class="pipe__stage${names.length ? " is-live" : ""}">
+        <p class="hud-label">${escapeHtml(label)}</p>
+        ${body}
+      </li>
+    `;
+  };
+
+  const flowHtml = flow.map((label) => stage(label, [])).join("");
+  const terminalHtml = terminals
+    .map((label) => stage(label, label === "Owned" ? owned : []))
+    .join("");
+
+  host.innerHTML = `
+    <ol class="pipe__flow">${flowHtml}</ol>
+    <p class="pipe__arrow" aria-hidden="true">→</p>
+    <ol class="pipe__end">${terminalHtml}</ol>
+  `;
+}
+
 function renderTeam(md) {
   const parsed = parseTeam(md);
   const lede = document.getElementById("team-lede");
@@ -740,7 +776,7 @@ async function main() {
   }
 
   try {
-    const [meta, equity, trades, methodology, team, thinking, research, changelog, spy] = await Promise.all([
+    const [meta, equity, trades, methodology, team, thinking, research, changelog, spy, pipeline] = await Promise.all([
       loadJson("meta.json"),
       loadJsonl("equity.jsonl"),
       loadJsonl("trades.jsonl"),
@@ -750,6 +786,7 @@ async function main() {
       loadText("research.md"),
       loadText("changelog.md"),
       loadJson("spy.json"),
+      loadJson("pipeline.json"),
     ]);
 
     const book = computeBook(meta, equity, trades);
@@ -759,6 +796,7 @@ async function main() {
     renderKpis(book, meta);
     renderChart(equity, book.start, spy);
     renderMethodology(methodology);
+    renderPipeline(pipeline, book);
     renderTeam(team);
     renderThinking(thought);
     renderPositions(book, thought);
