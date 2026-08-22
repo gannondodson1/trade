@@ -16,6 +16,7 @@ Numbers come only from the public log:
 - `data/equity.jsonl` — snapshot history for the desk-only chart
 - `data/trades.jsonl` — intents and fills (no account numbers or order IDs)
 - `data/methodology.md` — how the desk tries to win
+- `data/team.md` — named agents on the public page
 - `data/thinking.md` — current hold / software-stop note
 - `data/changelog.md` — rule changes
 - `data/spy.json` — official Yahoo Finance SPY daily bars only

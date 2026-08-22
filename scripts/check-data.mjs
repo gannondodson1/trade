@@ -90,19 +90,30 @@ for (const [name, got, want] of checks) {
 const methodology = read("methodology.md");
 const changelog = read("changelog.md");
 const thinking = read("thinking.md");
+const team = read("team.md");
+const page = readFileSync(join(root, "index.html"), "utf8");
 const rklbThesis = fills.find((t) => t.symbol === "RKLB").thesis;
+const teamNames = ["Morgan", "Cole", "Sloane", "Jules", "Dana", "Parker", "Remy", "Tate", "Nico"];
 const copyChecks = [
-  ["methodology how it picks", methodology.includes("## How it picks"), true],
+  ["methodology edge heading", methodology.includes("## Edge"), true],
+  ["methodology two ways in", methodology.includes("Two ways in, Cole decides"), true],
+  ["methodology cadence 7:45", methodology.includes("Morgan briefs Cole at 7:45"), true],
+  ["methodology ugly news", methodology.includes("only ugly news interrupts"), true],
   ["methodology social-arb math limit", methodology.includes("A social-arb idea still has to clear the same math"), true],
   ["changelog loop item is original", changelog.includes("15-minute regular-hours checks, software stops"), true],
   ["changelog research feed item", changelog.includes("Two-lens desk + Research feed"), true],
   ["changelog loop heading", changelog.includes("15-minute loop"), true],
   ["changelog name-off item", changelog.includes("Name off the public page"), true],
+  ["changelog named team item", changelog.includes("Named team + COS"), true],
+  ["changelog philosophy item", changelog.includes("Philosophy updated"), true],
   [
     "changelog heading count",
     changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
-    6,
+    8,
   ],
+  ["team all nine names", teamNames.every((name) => team.includes(`- ${name} -`)), true],
+  ["team closer", team.includes("Specialists flag Morgan. Morgan ranks. Cole decides. Nico publishes."), true],
+  ["about the team chapter", page.includes('id="team"') && page.includes("ABOUT THE TEAM"), true],
   ["thinking after close", thinking.includes("5:49 PM ET (after close)"), true],
   ["thinking Monday triggers", thinking.includes("What would make it do something Monday"), true],
   ["thinking Friday close", thinking.includes("$72.57"), true],
@@ -166,6 +177,8 @@ const banned = [
   "the department is the book",
   "two lenses, one decision",
   "does not grade its own homework",
+  "Trading ops",
+  "The Desk",
 ];
 for (const file of [
   "index.html",
@@ -175,6 +188,7 @@ for (const file of [
   "data/methodology.md",
   "data/thinking.md",
   "data/changelog.md",
+  "data/team.md",
 ]) {
   const text = readFileSync(join(root, file), "utf8");
   for (const word of banned) {

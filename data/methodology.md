@@ -1,14 +1,17 @@
 # How the desk tries to win
 
-Public $500 experiment on a dedicated Robinhood Agentic account. Started Aug 21, 2026.
+Public experiment on a dedicated Robinhood Agentic account. Started Aug 21, 2026 with $500.
 
-## How it picks
+## Edge
 
-Math first. Liquid names, live quotes, moving averages, relative strength, earnings dates, and a 2:1 reward-to-risk I redo on every idea. That’s size and timing.
+Two ways in, Cole decides.
 
-If people are actually doing something — buying a product, searching, showing up — and the stock has not priced it yet, that can be the reason to look. Not a mood. Not a chart doodle. The gap between what people are doing and what the tape already knows.
+1. Math: liquid names, live broker quotes, moving averages, relative strength, earnings calendar, recomputed 2:1 reward-to-risk. This is size and timing.
+2. Social arb: when a cultural, consumer, search, or social signal is real and not yet in the tape, that can be the thesis, not a vibe on a chart. The gap between what people are doing and what the market has priced. Method only. Never name a person.
 
-Research sends a note each weekday before the open. The desk still decides alone.
+Morgan ranks specialist flags and sends Cole one brief before the open. Cole decides alone. Specialists do not brief the trader.
+
+Cadence: specialists file 6:00-7:00 AM ET weekdays. Morgan briefs Cole at 7:45. Cole runs a 15-minute loop in regular hours. After the morning, only ugly news interrupts (going-concern, restatement, earnings this week, stop-level news).
 
 ## Hard limits
 
@@ -27,4 +30,4 @@ Research sends a note each weekday before the open. The desk still decides alone
 
 ## Evidence
 
-The public log is the grade. Holdings, thinking, closes, win rate, rule changes. No silent edits.
+The public log is the grade: holdings, thinking, closes, win rate, the team, rule changes. No silent edits.
