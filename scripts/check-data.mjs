@@ -90,6 +90,7 @@ for (const [name, got, want] of checks) {
 const methodology = read("methodology.md");
 const changelog = read("changelog.md");
 const thinking = read("thinking.md");
+const research = read("research.md");
 const team = read("team.md");
 const page = readFileSync(join(root, "index.html"), "utf8");
 const rklbThesis = fills.find((t) => t.symbol === "RKLB").thesis;
@@ -119,8 +120,13 @@ const copyChecks = [
   ["thinking after close", thinking.includes("5:49 PM ET (after close)"), true],
   ["thinking Monday triggers", thinking.includes("What would make it do something Monday"), true],
   ["thinking Friday close", thinking.includes("$72.57"), true],
-  ["thinking social-arb waitlist", thinking.includes("ELF first"), true],
-  ["thinking open-book social check", thinking.includes("Open-book social check"), true],
+  ["thinking social-arb waitlist kept", thinking.includes("ELF first"), true],
+  ["thinking open-book social check kept", thinking.includes("Open-book social check"), true],
+  ["research is not orders", research.includes("Research, not orders."), true],
+  ["research waitlist", research.includes("ELF first") && research.includes("HOOD watched"), true],
+  ["research social check", research.includes("Open-book social check") && research.includes("flatten still $35.50"), true],
+  ["open research chapter", page.includes('id="research"') && page.includes("OPEN RESEARCH"), true],
+  ["holdings has no waitlist wall", page.includes('id="waitlist"'), false],
   ["thinking does not invent option mark", thinking.includes("134") === false, true],
   ["logged RKLB thesis unchanged", rklbThesis.includes("$123M to $234M"), true],
   ["disclaimer in hero", readFileSync(join(root, "index.html"), "utf8").includes("not a recommendation to buy or sell"), true],
@@ -197,6 +203,7 @@ for (const file of [
   "data/thinking.md",
   "data/changelog.md",
   "data/team.md",
+  "data/research.md",
   "css/site.css",
 ]) {
   const text = readFileSync(join(root, file), "utf8");
@@ -214,6 +221,7 @@ for (const file of [
   "data/thinking.md",
   "data/changelog.md",
   "data/team.md",
+  "data/research.md",
 ]) {
   const text = readFileSync(join(root, file), "utf8");
   for (const word of banned) {
