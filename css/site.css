@@ -652,8 +652,19 @@ main,
   font-size: 0.7rem;
 }
 
-.waitlist {
-  margin-top: 1.1rem;
+.research__note {
+  padding: 1.15rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.research__note:first-child {
+  border-top: 0;
+}
+
+.research__note p:not(.hud-label) {
+  max-width: 44rem;
+  margin: 0.55rem 0 0;
+  color: var(--bone-soft);
 }
 
 .center-note {

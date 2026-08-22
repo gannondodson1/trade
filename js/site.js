@@ -241,6 +241,22 @@ function mdBlocks(text) {
   return out.join("");
 }
 
+function parseResearch(md) {
+  const lines = md
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("#"));
+  const lede = lines.find((l) => /research, not orders/i.test(l) && !l.includes(":")) || lines[0] || "";
+  const notes = lines
+    .filter((l) => l !== lede)
+    .map((line) => {
+      const split = line.indexOf(": ");
+      if (split === -1) return { label: "Research", body: line };
+      return { label: line.slice(0, split), body: line.slice(split + 2) };
+    });
+  return { lede, notes };
+}
+
 function parseTeam(md) {
   const lede = md
     .split("\n")
@@ -585,14 +601,22 @@ function renderPositions(book, thought) {
   });
 }
 
-function renderWaitlist(thought) {
-  const host = document.getElementById("waitlist");
+function renderResearch(md) {
+  const parsed = parseResearch(md);
+  const lede = document.getElementById("research-lede");
+  const host = document.getElementById("research-notes");
+  if (lede) lede.textContent = parsed.lede;
   if (!host) return;
-  if (!thought.waitlist.length) {
-    host.innerHTML = "";
-    return;
-  }
-  host.innerHTML = thought.waitlist.map((line) => `<p>${escapeHtml(line)}</p>`).join("");
+  host.innerHTML = parsed.notes
+    .map(
+      (note) => `
+        <article class="research__note">
+          <p class="hud-label">${escapeHtml(note.label)}</p>
+          <p>${escapeHtml(note.body)}</p>
+        </article>
+      `
+    )
+    .join("");
 }
 
 function renderTriggers(thought) {
@@ -716,13 +740,14 @@ async function main() {
   }
 
   try {
-    const [meta, equity, trades, methodology, team, thinking, changelog, spy] = await Promise.all([
+    const [meta, equity, trades, methodology, team, thinking, research, changelog, spy] = await Promise.all([
       loadJson("meta.json"),
       loadJsonl("equity.jsonl"),
       loadJsonl("trades.jsonl"),
       loadText("methodology.md"),
       loadText("team.md"),
       loadText("thinking.md"),
+      loadText("research.md"),
       loadText("changelog.md"),
       loadJson("spy.json"),
     ]);
@@ -737,7 +762,7 @@ async function main() {
     renderTeam(team);
     renderThinking(thought);
     renderPositions(book, thought);
-    renderWaitlist(thought);
+    renderResearch(research);
     renderTriggers(thought);
     renderTrades(book.fills);
     renderChangelog(changelog);
