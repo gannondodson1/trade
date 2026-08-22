@@ -518,24 +518,31 @@ function renderMethodology(md) {
   `;
 }
 
-function renderPipeline(spec, book) {
+function renderPipeline(spec) {
   const lede = document.getElementById("pipe-lede");
   const host = document.getElementById("pipe");
   if (lede) lede.textContent = spec?.note || "Public skeleton only.";
   if (!host) return;
 
-  const owned = (book.fills || []).map((fill) =>
-    fill.instrument ? fill.instrument : fill.symbol
-  );
   const flow = spec?.flow || [];
   const terminals = spec?.terminals || ["Owned", "Rejected"];
+  const owned = spec?.owned || [];
+  const rejected = spec?.rejected || [];
 
-  const stage = (label, names) => {
-    const body = names.length
-      ? names.map((name) => `<p class="pipe__name">${escapeHtml(name)}</p>`).join("")
+  const stage = (label, rows) => {
+    const body = rows.length
+      ? rows
+          .map((row) => {
+            if (typeof row === "string") {
+              return `<p class="pipe__name">${escapeHtml(row)}</p>`;
+            }
+            const state = row.state ? `<p class="pipe__empty">${escapeHtml(row.state)}</p>` : "";
+            return `<p class="pipe__name">${escapeHtml(row.name || "")}</p>${state}`;
+          })
+          .join("")
       : `<p class="pipe__empty">—</p>`;
     return `
-      <li class="pipe__stage${names.length ? " is-live" : ""}">
+      <li class="pipe__stage${rows.length ? " is-live" : ""}">
         <p class="hud-label">${escapeHtml(label)}</p>
         ${body}
       </li>
@@ -544,7 +551,7 @@ function renderPipeline(spec, book) {
 
   const flowHtml = flow.map((label) => stage(label, [])).join("");
   const terminalHtml = terminals
-    .map((label) => stage(label, label === "Owned" ? owned : []))
+    .map((label) => stage(label, label === "Owned" ? owned : label === "Rejected" ? rejected : []))
     .join("");
 
   host.innerHTML = `
@@ -796,7 +803,7 @@ async function main() {
     renderKpis(book, meta);
     renderChart(equity, book.start, spy);
     renderMethodology(methodology);
-    renderPipeline(pipeline, book);
+    renderPipeline(pipeline);
     renderTeam(team);
     renderThinking(thought);
     renderPositions(book, thought);
