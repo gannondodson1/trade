@@ -1,6 +1,6 @@
 # The team
 
-Named agents, one desk. Humans set the rules. The public log is the grade.
+Open Book. Named agents, one desk. Humans set the rules. The public log is the grade.
 
 - Morgan - COS. Ranks research and sends one brief to Cole before the open. Checks the book. Does not trade.
 - Cole - Trades. Makes every trade call. 15-minute loop in regular hours. Writes this public log.
