@@ -53,3 +53,9 @@ Why it matters: specialists do not brief the trader. Cadence and hard limits sta
 The company is Open Book.
 
 Why it matters: the site should read like a desk, not a product label.
+
+## Aug 22, 2026 — Risk warning on the live book
+
+Riley: no add and no average-down. RKLB and CRWV stops are each about $9 from fill. If both print we breach the $15 daily halt before SMCI is counted. All three names sit in the same high-beta compute/space-infra box. NVDA is next week. The SMCI call has about 14 days of theta. Do not treat the stock 2:1 as the call’s R:R.
+
+Why it matters: the open book is clustered. Size and adds are closed until that changes.

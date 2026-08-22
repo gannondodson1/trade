@@ -121,10 +121,11 @@ const copyChecks = [
   ["changelog named team item", changelog.includes("Named team + COS"), true],
   ["changelog philosophy item", changelog.includes("Philosophy updated"), true],
   ["changelog open book item", changelog.includes("The company is Open Book."), true],
+  ["changelog risk warning", changelog.includes("Risk warning on the live book"), true],
   [
     "changelog heading count",
     changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
-    9,
+    10,
   ],
   ["team all ten names", teamNames.every((name) => team.includes(`- ${name} -`)), true],
   ["team has no Dana", team.includes("Dana"), false],
