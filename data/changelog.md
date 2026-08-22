@@ -75,3 +75,9 @@ Victor on CRWV: weak, not a kill. RPO $103.7B / 98% committed; junior residual o
 Cluster: CRWV common and the SMCI call are the same NVIDIA / AI-capex factor. RKLB already has a red-team kill.
 
 Why it matters: SMCI failed red-team. CRWV is weak. Original fill records are not rewritten.
+
+## Aug 22, 2026 — Flatten recommendation queued for Monday open
+
+RKLB is queued to flatten in Monday regular hours. Riley approved. Victor’s kill still stands. The original buy record is not rewritten. This is a recommendation in the public book, not a live order.
+
+Why it matters: the live RKLB thesis failed red-team; the desk is set to flatten Monday, not add.
