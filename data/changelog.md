@@ -54,12 +54,6 @@ The company is Open Book.
 
 Why it matters: the site should read like a desk, not a product label.
 
-## Aug 22, 2026 — Risk warning on the live book
-
-Riley: no add and no average-down. RKLB and CRWV stops are each about $9 from fill. If both print we breach the $15 daily halt before SMCI is counted. All three names sit in the same high-beta compute/space-infra box. NVDA is next week. The SMCI call has about 14 days of theta. Do not treat the stock 2:1 as the call’s R:R.
-
-Why it matters: the open book is clustered. Size and adds are closed until that changes.
-
 ## Aug 22, 2026 — Red-team kill on RKLB
 
 Victor: the 20-day hold is already broken (Friday cash close $72.57 under $73.50–$74). $81.80 / $69.50 is not 2:1 after this week’s $71.45–$74.95 range. The 50-day at $82.05 and the 200-day at $78.73 sit at or above the target. $69.50 is not true invalidation versus the Iridium collar floor at $67.50. H1 ATM gross $1.53B; a trust sold into the $81–$102 zone. Sequential revenue $200.3M to $234.1M is a multi-year Neutron/Iridium story, not this stop box. Sources: Q2 10-Q, Ex. 99.1, Yahoo key stats 21 Aug close. CRWV and SMCI are still in challenge.

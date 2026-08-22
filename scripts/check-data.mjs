@@ -123,7 +123,8 @@ const copyChecks = [
   ["changelog named team item", changelog.includes("Named team + COS"), true],
   ["changelog philosophy item", changelog.includes("Philosophy updated"), true],
   ["changelog open book item", changelog.includes("The company is Open Book."), true],
-  ["changelog risk warning", changelog.includes("Risk warning on the live book"), true],
+  ["changelog no extra risk warning", changelog.includes("Risk warning on the live book"), false],
+  ["changelog no hard-risk book", changelog.includes("hard-risk") || changelog.includes("Daily Brief"), false],
   ["changelog red-team rklb", changelog.includes("Red-team kill on RKLB"), true],
   ["changelog red-team smci", changelog.includes("Red-team kill on SMCI, weak CRWV"), true],
   ["changelog two monday flattens", changelog.includes("Two Monday flatten recommendations queued"), true],
@@ -131,7 +132,7 @@ const copyChecks = [
   [
     "changelog heading count",
     changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
-    13,
+    12,
   ],
   ["team all ten names", teamNames.every((name) => team.includes(`- ${name} -`)), true],
   ["team has no Dana", team.includes("Dana"), false],
