@@ -153,7 +153,7 @@ function parseThinking(md) {
     const line = raw.trim();
     if (!line || line.startsWith("# ")) continue;
     if (/^Updated:/i.test(line) || /^Status:/i.test(line)) continue;
-    if (/^What would make it do something/i.test(line)) {
+    if (/^What would make it do something/i.test(line) || /^What Monday does/i.test(line)) {
       inTriggers = true;
       continue;
     }
