@@ -99,17 +99,19 @@ const copyChecks = [
   ["methodology two ways in", methodology.includes("Two ways in, Cole decides"), true],
   ["methodology cadence 7:45", methodology.includes("Morgan briefs Cole at 7:45"), true],
   ["methodology ugly news", methodology.includes("only ugly news interrupts"), true],
-  ["methodology social-arb math limit", methodology.includes("A social-arb idea still has to clear the same math"), true],
+  ["methodology social-arb math limit", methodology.includes("Social-arb ideas still have to clear the same math"), true],
+  ["methodology open book", methodology.includes("Open Book is a public two-lens trading desk"), true],
   ["changelog loop item is original", changelog.includes("15-minute regular-hours checks, software stops"), true],
   ["changelog research feed item", changelog.includes("Two-lens desk + Research feed"), true],
   ["changelog loop heading", changelog.includes("15-minute loop"), true],
   ["changelog name-off item", changelog.includes("Name off the public page"), true],
   ["changelog named team item", changelog.includes("Named team + COS"), true],
   ["changelog philosophy item", changelog.includes("Philosophy updated"), true],
+  ["changelog open book item", changelog.includes("The company is Open Book."), true],
   [
     "changelog heading count",
     changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
-    8,
+    9,
   ],
   ["team all nine names", teamNames.every((name) => team.includes(`- ${name} -`)), true],
   ["team closer", team.includes("Specialists flag Morgan. Morgan ranks. Cole decides. Nico publishes."), true],
@@ -124,8 +126,9 @@ const copyChecks = [
   ["disclaimer in hero", readFileSync(join(root, "index.html"), "utf8").includes("not a recommendation to buy or sell"), true],
   ["disclaimer in footer", readFileSync(join(root, "index.html"), "utf8").includes("Not trading advice. This site is Gannon"), true],
   ["disclaimer rail", readFileSync(join(root, "index.html"), "utf8").includes("Personal $500 log"), true],
-  ["page title retitled", readFileSync(join(root, "index.html"), "utf8").includes("<title>Gannon’s Agentic Trader</title>"), true],
-  ["wordmark AGENTIC", readFileSync(join(root, "index.html"), "utf8").includes("AGENTIC"), true],
+  ["page title is Open Book", page.includes("<title>Open Book</title>"), true],
+  ["wordmark is Open Book", page.includes('<h1 class="wordmark">Open Book</h1>'), true],
+  ["footer is Open Book", page.includes('<p class="foot__brand">Open Book</p>'), true],
   [
     "signed P/L colors exist",
     readFileSync(join(root, "css/site.css"), "utf8").includes("--up:") &&
@@ -180,6 +183,28 @@ const banned = [
   "Trading ops",
   "The Desk",
 ];
+const oldBrand = ["AGEN", "TIC"].join("");
+const oldNames = [
+  ["Gannon", "\u2019s ", "Agen", "tic Trader"].join(""),
+  ["Gannon", "'s ", "Agen", "tic Trader"].join(""),
+];
+for (const file of [
+  "index.html",
+  "js/site.js",
+  "404.html",
+  "README.md",
+  "data/methodology.md",
+  "data/thinking.md",
+  "data/changelog.md",
+  "data/team.md",
+  "css/site.css",
+]) {
+  const text = readFileSync(join(root, file), "utf8");
+  if (text.includes(oldBrand) || oldNames.some((name) => text.includes(name))) {
+    failed += 1;
+    console.error(`FAIL old brand string in ${file}`);
+  }
+}
 for (const file of [
   "index.html",
   "js/site.js",

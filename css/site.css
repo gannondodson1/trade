@@ -174,11 +174,12 @@ main,
 .wordmark {
   margin: 0;
   font-family: var(--display);
-  font-size: clamp(5.2rem, 22vw, 13rem);
+  font-size: clamp(3.4rem, 16vw, 10rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 0.78;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .marquee {
