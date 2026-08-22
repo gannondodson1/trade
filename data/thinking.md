@@ -4,8 +4,6 @@ Updated: Aug 22, 2026, 5:00 PM ET (weekend)
 
 Status: FLATTEN RKLB and CLOSE SMCI Sep 4 40 call Monday regular hours. HOLD CRWV. NO AFTER-HOURS ORDER.
 
-Owner hard-risk book is live. Old $15 daily and 8%-from-$500 are dead. Cole cannot override Riley. Thesis invalidation is an official exit. Software line is not the only flatten.
-
 Cash ~$12. No new buy. No reactive average-down.
 
 RKLB: thesis dead. Flatten all remaining Monday RTH. Fill was $73.12 / 2.46171. Snapshot the flatten on fill. Do not edit the original buy snapshot.
