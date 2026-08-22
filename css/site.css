@@ -522,9 +522,66 @@ main,
   font-size: 0.78rem;
 }
 
+.pipe {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.8rem 0.9rem;
+  align-items: stretch;
+}
+
+.pipe__flow,
+.pipe__end {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.pipe__flow {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.pipe__end {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pipe__stage {
+  min-height: 5.4rem;
+  padding: 0.7rem 0.65rem 0.8rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.pipe__name {
+  margin: 0.4rem 0 0;
+  color: var(--orange);
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.pipe__empty {
+  margin: 0.45rem 0 0;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+}
+
+.pipe__arrow {
+  align-self: center;
+  margin: 0;
+  color: var(--orange);
+  font-family: var(--mono);
+  font-size: 1.1rem;
+}
+
 .roster {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   border-top: 1px solid var(--line);
   border-left: 1px solid var(--line);
 }
@@ -774,8 +831,28 @@ code {
   color: var(--orange);
 }
 
+@media (max-width: 1100px) {
+  .pipe {
+    grid-template-columns: 1fr;
+  }
+
+  .pipe__arrow {
+    display: none;
+  }
+
+  .pipe__flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .roster {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 760px) {
   .doctrine,
+  .pipe__flow,
+  .pipe__end,
   .roster,
   .row,
   .rows--tight .row {

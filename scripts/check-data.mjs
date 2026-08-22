@@ -94,7 +94,19 @@ const research = read("research.md");
 const team = read("team.md");
 const page = readFileSync(join(root, "index.html"), "utf8");
 const rklbThesis = fills.find((t) => t.symbol === "RKLB").thesis;
-const teamNames = ["Morgan", "Cole", "Sloane", "Jules", "Dana", "Parker", "Remy", "Tate", "Nico"];
+const teamNames = [
+  "Morgan",
+  "Alex",
+  "Parker",
+  "Jules",
+  "Sloane",
+  "Remy",
+  "Victor",
+  "Riley",
+  "Cole",
+  "Nico",
+];
+const pipeline = JSON.parse(read("pipeline.json"));
 const copyChecks = [
   ["methodology edge heading", methodology.includes("## Edge"), true],
   ["methodology two ways in", methodology.includes("Two ways in, Cole decides"), true],
@@ -114,9 +126,27 @@ const copyChecks = [
     changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
     9,
   ],
-  ["team all nine names", teamNames.every((name) => team.includes(`- ${name} -`)), true],
+  ["team all ten names", teamNames.every((name) => team.includes(`- ${name} -`)), true],
+  ["team has no Dana", team.includes("Dana"), false],
+  ["team has no Tate", team.includes("Tate"), false],
   ["team closer", team.includes("Specialists flag Morgan. Morgan ranks. Cole decides. Nico publishes."), true],
   ["about the team chapter", page.includes('id="team"') && page.includes("ABOUT THE TEAM"), true],
+  ["pipeline chapter", page.includes('id="pipeline"') && page.includes("PIPELINE"), true],
+  [
+    "pipeline public stages",
+    JSON.stringify(pipeline.flow) ===
+      JSON.stringify([
+        "Discovery",
+        "Research",
+        "High Conviction",
+        "Red Team",
+        "Risk",
+        "Trade Ready",
+      ]),
+    true,
+  ],
+  ["pipeline has no idea names", !["ELF", "DKNG", "SOFI"].some((n) => JSON.stringify(pipeline).includes(n)), true],
+  ["pipeline owned from fills", JSON.stringify(pipeline).includes("RKLB") === false, true],
   ["thinking after close", thinking.includes("5:49 PM ET (after close)"), true],
   ["thinking Monday triggers", thinking.includes("What would make it do something Monday"), true],
   ["thinking Friday close", thinking.includes("$72.57"), true],
@@ -204,6 +234,7 @@ for (const file of [
   "data/changelog.md",
   "data/team.md",
   "data/research.md",
+  "data/pipeline.json",
   "css/site.css",
 ]) {
   const text = readFileSync(join(root, file), "utf8");
@@ -222,6 +253,7 @@ for (const file of [
   "data/changelog.md",
   "data/team.md",
   "data/research.md",
+  "data/pipeline.json",
 ]) {
   const text = readFileSync(join(root, file), "utf8");
   for (const word of banned) {
