@@ -124,7 +124,8 @@ const copyChecks = [
   ["changelog risk warning", changelog.includes("Risk warning on the live book"), true],
   ["changelog red-team rklb", changelog.includes("Red-team kill on RKLB"), true],
   ["changelog red-team smci", changelog.includes("Red-team kill on SMCI, weak CRWV"), true],
-  ["changelog flatten monday", changelog.includes("Flatten recommendation queued for Monday open"), true],
+  ["changelog two monday flattens", changelog.includes("Two Monday flatten recommendations queued"), true],
+  ["changelog no single flatten item", changelog.includes("Flatten recommendation queued for Monday open"), false],
   [
     "changelog heading count",
     changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,

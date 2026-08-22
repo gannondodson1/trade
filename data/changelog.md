@@ -76,8 +76,8 @@ Cluster: CRWV common and the SMCI call are the same NVIDIA / AI-capex factor. RK
 
 Why it matters: SMCI failed red-team. CRWV is weak. Original fill records are not rewritten.
 
-## Aug 22, 2026 — Flatten recommendation queued for Monday open
+## Aug 22, 2026 — Two Monday flatten recommendations queued
 
-RKLB is queued to flatten in Monday regular hours. Riley approved. Victor’s kill still stands. The original buy record is not rewritten. This is a recommendation in the public book, not a live order.
+Riley’s Monday plan: flatten RKLB and the SMCI Sep 4 40 call in regular hours. Hold CRWV, still owned, to 83.70. Victor: RKLB kill, SMCI kill, CRWV weak. Original buy records are not rewritten. These are recommendations in the public book, not live orders.
 
-Why it matters: the live RKLB thesis failed red-team; the desk is set to flatten Monday, not add.
+Why it matters: two names are set to flatten Monday, not add. CRWV stays on the software stop.
