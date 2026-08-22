@@ -521,6 +521,49 @@ main,
   font-size: 0.78rem;
 }
 
+.roster {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.seat {
+  padding: 0.95rem 1rem 1.1rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.seat__role {
+  margin: 0;
+  color: var(--orange);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.seat__name {
+  margin: 0.32rem 0 0;
+  font-family: var(--display);
+  font-size: clamp(1.45rem, 2.4vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.seat__bio {
+  margin: 0.4rem 0 0;
+  color: var(--bone-soft);
+  font-size: 0.9rem;
+}
+
+.roster__foot {
+  margin: 1.05rem 0 0;
+  color: var(--mute);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+}
+
 .thought {
   margin-bottom: 1.4rem;
 }
@@ -721,6 +764,7 @@ code {
 
 @media (max-width: 760px) {
   .doctrine,
+  .roster,
   .row,
   .rows--tight .row {
     grid-template-columns: 1fr;

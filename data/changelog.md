@@ -35,3 +35,15 @@ Why it matters: we can take a story the tape hasn’t priced, without dropping t
 Social-arb stays. The public log no longer names a person for that lens.
 
 Why it matters: the site should describe the method, not a person.
+
+## Aug 21, 2026 — Named team + COS
+
+Named agents, one desk. Morgan ranks research and sends Cole one brief before the open. Cole makes every trade call. Specialists flag Morgan. Nico publishes. Room chatter is not an order.
+
+Why it matters: the public page now says who does what. Humans set the rules. The public log is the grade.
+
+## Aug 21, 2026 — Philosophy updated
+
+Two ways in, Cole decides. Math still sets size and timing. Social arb is a method when a real unpriced cultural or consumer signal is the thesis. Morgan briefs Cole at 7:45 AM ET. After the morning, only ugly news interrupts.
+
+Why it matters: specialists do not brief the trader. Cadence and hard limits stay on the record.

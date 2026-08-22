@@ -177,7 +177,7 @@ function parseThinking(md) {
 }
 
 function parseMethodology(md) {
-  const edge = /## How it picks\n+([\s\S]*?)\n+## Hard limits/.exec(md);
+  const edge = /## Edge\n+([\s\S]*?)\n+## Hard limits/.exec(md);
   const limits = /## Hard limits\n+([\s\S]*?)\n+## Evidence/.exec(md);
   const evidence = /## Evidence\n+([\s\S]*)$/.exec(md);
   const lede = md
@@ -239,6 +239,26 @@ function mdBlocks(text) {
   }
   flushLists();
   return out.join("");
+}
+
+function parseTeam(md) {
+  const lede = md
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l && !l.startsWith("#") && !l.startsWith("- "));
+  const members = [];
+  for (const raw of md.split(/\r?\n/)) {
+    const line = raw.trim();
+    const match = /^- ([A-Za-z]+) - ([^.]+)\.\s*(.*)$/.exec(line);
+    if (!match) continue;
+    members.push({ name: match[1], role: match[2], bio: match[3] });
+  }
+  const closer = md
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("#") && !l.startsWith("- ") && l !== lede)
+    .at(-1) || "";
+  return { lede: lede || "", members, closer };
 }
 
 function parseChangelog(md) {
@@ -471,7 +491,7 @@ function renderMethodology(md) {
   document.getElementById("method-lede").textContent = parsed.lede;
   document.getElementById("methodology").innerHTML = `
     <div class="doctrine__col">
-      <h3>How it picks</h3>
+      <h3>Two ways in</h3>
       ${mdBlocks(parsed.edge)}
     </div>
     <div class="doctrine__col">
@@ -480,6 +500,28 @@ function renderMethodology(md) {
       <p class="split__foot">${mdInline(parsed.evidence)}</p>
     </div>
   `;
+}
+
+function renderTeam(md) {
+  const parsed = parseTeam(md);
+  const lede = document.getElementById("team-lede");
+  const roster = document.getElementById("roster");
+  const foot = document.getElementById("team-foot");
+  if (lede) lede.textContent = parsed.lede;
+  if (roster) {
+    roster.innerHTML = parsed.members
+      .map(
+        (seat) => `
+          <article class="seat">
+            <p class="seat__role">${escapeHtml(seat.role)}</p>
+            <h3 class="seat__name">${escapeHtml(seat.name)}</h3>
+            <p class="seat__bio">${escapeHtml(seat.bio)}</p>
+          </article>
+        `
+      )
+      .join("");
+  }
+  if (foot) foot.textContent = parsed.closer;
 }
 
 function renderThinking(thought) {
@@ -674,11 +716,12 @@ async function main() {
   }
 
   try {
-    const [meta, equity, trades, methodology, thinking, changelog, spy] = await Promise.all([
+    const [meta, equity, trades, methodology, team, thinking, changelog, spy] = await Promise.all([
       loadJson("meta.json"),
       loadJsonl("equity.jsonl"),
       loadJsonl("trades.jsonl"),
       loadText("methodology.md"),
+      loadText("team.md"),
       loadText("thinking.md"),
       loadText("changelog.md"),
       loadJson("spy.json"),
@@ -691,6 +734,7 @@ async function main() {
     renderKpis(book, meta);
     renderChart(equity, book.start, spy);
     renderMethodology(methodology);
+    renderTeam(team);
     renderThinking(thought);
     renderPositions(book, thought);
     renderWaitlist(thought);
