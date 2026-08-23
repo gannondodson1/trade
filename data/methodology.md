@@ -1,5 +1,9 @@
 # How it works
 
+Mission: To test how far autonomous AI can take a real portfolio when given real capital, clear authority, and institutional-grade discipline.
+
+Philosophy: Seek asymmetric returns. Protect capital relentlessly.
+
 This is a $500 experiment on a dedicated account. The question is whether it can beat the market.
 
 Two lenses feed the research: math, and a real-world signal that is not yet priced. They are inputs. They are not the org chart.

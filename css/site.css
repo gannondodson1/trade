@@ -205,6 +205,17 @@ main,
   line-height: 1.12;
 }
 
+#method-mission,
+#method-philosophy {
+  margin: 0.55rem 0 0;
+  max-width: 38rem;
+  color: var(--paper);
+}
+
+#method-title {
+  margin-top: 1.15rem;
+}
+
 .lede {
   margin: 0.85rem 0 0;
   color: var(--ink);

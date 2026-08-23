@@ -110,6 +110,8 @@ const teamNames = [
 ];
 const pipeline = JSON.parse(read("pipeline.json"));
 const copyChecks = [
+  ["methodology mission", methodology.includes("Mission: To test how far autonomous AI can take a real portfolio"), true],
+  ["methodology philosophy", methodology.includes("Philosophy: Seek asymmetric returns."), true],
   ["methodology beat the market", methodology.includes("whether it can beat the market"), true],
   ["methodology two lenses inputs", methodology.includes("They are inputs. They are not the org chart."), true],
   ["methodology morgan operates", methodology.includes("Morgan operates the firm."), true],
@@ -122,6 +124,8 @@ const copyChecks = [
   ["methodology no daily 15", /\$15/.test(methodology), false],
   ["methodology no drawdown 8", methodology.includes("8%"), false],
   ["methodology risk book internal", methodology.includes("The risk book is internal."), true],
+  ["page method mission", page.includes("Mission: To test how far autonomous AI can take a real portfolio"), true],
+  ["page method philosophy", page.includes("Philosophy: Seek asymmetric returns."), true],
   ["page method has 8:30", page.includes("8:30 ET"), true],
   ["page method has no 7:45", page.includes("7:45"), false],
   ["page method morgan operates", page.includes("Morgan operates the firm."), true],
