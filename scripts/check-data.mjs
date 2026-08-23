@@ -119,7 +119,7 @@ const copyChecks = [
   ["methodology no max 200", methodology.includes("Max $200 per position"), false],
   ["methodology no daily 15", methodology.includes("Daily loss halt: $15"), false],
   ["methodology no drawdown 8", methodology.includes("Drawdown halt: 8% from the $500 start"), false],
-  ["methodology risk book internal", methodology.includes("The owner risk book is internal."), true],
+  ["methodology risk book internal", methodology.includes("The risk book is internal."), true],
   ["changelog loop item is original", changelog.includes("15-minute regular-hours checks, software stops"), true],
   ["changelog research feed item", changelog.includes("Two-lens desk + Research feed"), true],
   ["changelog loop heading", changelog.includes("15-minute loop"), true],
@@ -141,7 +141,9 @@ const copyChecks = [
   ["team all ten names", teamNames.every((name) => team.includes(`- ${name} -`)), true],
   ["team has no Dana", team.includes("Dana"), false],
   ["team has no Tate", team.includes("Tate"), false],
-  ["team closer", team.includes("Specialists flag Morgan. Morgan ranks. Cole decides. Nico publishes."), true],
+  ["team closer", team.includes("Morgan operates. Cole executes. Riley binds risk."), true],
+  ["team morgan operator", team.includes("COS / operator"), true],
+  ["team riley binds", team.includes("Binds risk"), true],
   ["about the team chapter", page.includes('id="team"') && page.includes("ABOUT THE TEAM"), true],
   ["pipeline chapter", page.includes('id="pipeline"') && page.includes("PIPELINE"), true],
   [
@@ -178,7 +180,9 @@ const copyChecks = [
   ["thinking does not invent option mark", thinking.includes("134") === false, true],
   ["logged RKLB thesis unchanged", rklbThesis.includes("$123M to $234M"), true],
   ["disclaimer in hero", readFileSync(join(root, "index.html"), "utf8").includes("not a recommendation to buy or sell"), true],
-  ["disclaimer in footer", readFileSync(join(root, "index.html"), "utf8").includes("Not trading advice. This site is Gannon"), true],
+  ["disclaimer in footer", page.includes("Not trading advice. This site is a public log"), true],
+  ["fathom mark", page.includes('class="fathom"'), true],
+  ["no human owner name", !page.includes("Gannon") && !page.includes("Dodson"), true],
   ["disclaimer rail", readFileSync(join(root, "index.html"), "utf8").includes("Personal $500 log"), true],
   ["page title is Open Book", page.includes("<title>Open Book</title>"), true],
   ["wordmark is Open Book", page.includes('<h1 class="wordmark">Open Book</h1>'), true],
@@ -236,6 +240,8 @@ const banned = [
   "does not grade its own homework",
   "Trading ops",
   "The Desk",
+  "Gannon Dodson",
+  "Gannon",
 ];
 const oldBrand = ["AGEN", "TIC"].join("");
 const oldNames = [

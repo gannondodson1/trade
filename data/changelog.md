@@ -8,7 +8,7 @@ Why it matters: day one is the baseline. Everything after is measured against $5
 
 ## Aug 21, 2026 — Options allowed
 
-Gannon opened options on this dedicated account. Still blocked until Robinhood enrolls that account (no options level yet). Until then, equity only.
+Options opened on this dedicated account. Still blocked until Robinhood enrolls that account (no options level yet). Until then, equity only.
 
 Why it matters: options are in-scope, but the public book shouldn’t show option trades until the account can actually place them.
 
@@ -22,7 +22,7 @@ Why it matters: the desk can spend a limited premium instead of only buying shar
 
 15-minute regular-hours checks, software stops, $200 max position, $15/3% daily loss halt, 8% drawdown halt, clean-story-only new buys. 2:1 minimum.
 
-Why it matters: the book can run that loop during the session without Gannon poking it.
+Why it matters: the book can run that loop during the session without an operator poking it.
 
 ## Aug 21, 2026 — Two-lens desk + Research feed
 

@@ -18,7 +18,7 @@ Cadence: specialists file 6:00-7:00 AM ET weekdays. Morgan briefs Cole at 7:45. 
 - Only this dedicated Open Book account. Main brokerage stays untouched.
 - Autonomous 15-minute loop during regular hours. Software stops: we sell when the named price prints; there is no resting broker stop.
 - At least 2:1 reward-to-risk. Swings aim +8-15% with a -4-6% stop.
-- The owner risk book is internal. This public log will not show the old $15/8% rules.
+- The risk book is internal. This public log will not show the old $15/8% rules.
 - No new buy unless the story is clean: liquid, sane spread, no earnings in the next week, unique vs names we already own, thesis in one sentence.
 - Social-arb ideas still have to clear the same math: liquidity, spread, R:R, earnings timing. A hot trend with no invalidation does not trade.
 - No averaging down. Risk size never auto-promotes.
