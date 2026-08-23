@@ -1,6 +1,6 @@
 # How the desk tries to win
 
-Open Book is a public two-lens trading desk. Dedicated account only. Started Aug 21, 2026 with $500.
+Fathom is a public two-lens trading desk. Dedicated account only. Started Aug 21, 2026 with $500.
 
 ## Edge
 
@@ -15,7 +15,7 @@ Cadence: specialists file 6:00-7:00 AM ET weekdays. Morgan briefs Cole at 7:45. 
 
 ## Hard limits
 
-- Only this dedicated Open Book account. Main brokerage stays untouched.
+- Only this dedicated Fathom account. Main brokerage stays untouched.
 - Autonomous 15-minute loop during regular hours. Software stops: we sell when the named price prints; there is no resting broker stop.
 - At least 2:1 reward-to-risk. Swings aim +8-15% with a -4-6% stop.
 - The risk book is internal. This public log will not show the old $15/8% rules.

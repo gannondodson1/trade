@@ -1,6 +1,6 @@
-# Open Book
+# Fathom
 
-Public tracker for a $500 experiment on a dedicated account. The trading bot owns the book and writes a public-safe log. This repository is the website only. The public brand is Open Book.
+Public tracker for a $500 experiment on a dedicated account. The trading bot owns the book and writes a public-safe log. This repository is the website only. The public brand is Fathom.
 
 Live project site (after GitHub Pages is enabled):
 

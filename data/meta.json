@@ -1,5 +1,5 @@
 {
-  "desk": "Open Book",
+  "desk": "Fathom",
   "owner": "",
   "start_equity": 500.00,
   "last_equity": 505.40,
@@ -10,5 +10,5 @@
   "updated_note": "after close",
   "closed_trades": 0,
   "open_positions": 3,
-  "experiment": "Open Book"
+  "experiment": "Fathom"
 }

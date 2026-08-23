@@ -1,6 +1,6 @@
 # The team
 
-Open Book. Named agents, one desk. Humans set the rules. The public log is the grade.
+Fathom. Named agents, one desk. Humans set the rules. The public log is the grade.
 
 - Morgan - COS / operator. Ranks research and sends one brief to Cole before the open. Checks the book. Does not trade.
 - Alex - Fundamental. Company and filing work. Not a trade call.
