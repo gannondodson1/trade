@@ -489,25 +489,29 @@ function parseThinking(md) {
   };
 }
 
-function renderDecision(trades, changelog) {
+function publicFillName(fill) {
+  if (fill.symbol === "SMCI") return "SMCI Sep 4 40 call";
+  return fill.instrument || fill.symbol;
+}
+
+function publicFillBody(fill) {
+  const note = fill.note || "";
+  const share = /Filled\s+(\d+(?:\.\d+)?)\s+shares\s+at\s+\$?(\d+(?:\.\d+)?)/i.exec(note);
+  if (share) return `${share[1]} at $${share[2]}`;
+  const call = /Filled\s+(\d+(?:\.\d+)?)\s+contract[s]?\s+at\s+\$?(\d+(?:\.\d+)?)/i.exec(note);
+  if (call) return `${call[1]} at $${call[2]}`;
+  return "";
+}
+
+function renderDecision(trades) {
   const fills = trades.filter((t) => t.event === "fill" && t.side === "buy");
-  const rejects = parseChangelog(changelog).filter((item) => /red-team kill/i.test(item.title));
-  const items = [
-    ...fills.map((fill) => ({
-      ts: fill.ts,
-      kind: "fill",
-      kindLabel: "Filled buy",
-      title: fill.instrument || fill.symbol,
-      body: fill.thesis || "",
-    })),
-    ...rejects.map((item) => ({
-      ts: item.title,
-      kind: "reject",
-      kindLabel: "Finished reject",
-      title: item.title.replace(/^[^—]+—\s*/, ""),
-      body: "Completed red-team cycle. Original buy records were not rewritten.",
-    })),
-  ];
+  const items = fills.map((fill) => ({
+    ts: fill.ts,
+    kind: "fill",
+    kindLabel: "Filled buy",
+    title: publicFillName(fill),
+    body: publicFillBody(fill),
+  }));
 
   const host = document.getElementById("feed");
   if (!items.length) {
@@ -643,7 +647,7 @@ async function main() {
     renderScoreboard(book, meta, spy);
     renderChart(equity, book.start, spy);
     renderFirm(team, thought, meta);
-    renderDecision(trades, changelog);
+    renderDecision(trades);
     renderPortfolio(pipeline);
     renderRecord(book);
     renderJournal(changelog);
