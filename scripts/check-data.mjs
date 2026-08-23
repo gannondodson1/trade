@@ -144,8 +144,15 @@ const copyChecks = [
   ["team closer", team.includes("Morgan operates. Cole executes. Riley binds risk."), true],
   ["team morgan operator", team.includes("COS / operator"), true],
   ["team riley binds", team.includes("Binds risk"), true],
-  ["about the team chapter", page.includes('id="team"') && page.includes("ABOUT THE TEAM"), true],
-  ["pipeline chapter", page.includes('id="pipeline"') && page.includes("PIPELINE"), true],
+  ["scoreboard section", page.includes('id="scoreboard"') && page.includes("Scoreboard"), true],
+  ["firm section", page.includes('id="firm"') && page.includes("The firm"), true],
+  ["decision section", page.includes('id="decision"') && page.includes("Decision feed"), true],
+  ["journal section", page.includes('id="journal"') && page.includes("Experiment journal"), true],
+  ["portfolio section", page.includes('id="portfolio"') && page.includes("Portfolio"), true],
+  ["track record section", page.includes('id="record"') && page.includes("Track record"), true],
+  ["method section", page.includes('id="method"') && page.includes("How it works"), true],
+  ["old 01 numbers ia gone", page.includes("01 Numbers") || page.includes("NUMBERS"), false],
+  ["old 08 what changed ia gone", page.includes("08 What changed") || page.includes("WHAT CHANGED"), false],
   [
     "pipeline public stages",
     JSON.stringify(pipeline.flow) ===
@@ -175,7 +182,7 @@ const copyChecks = [
   ["research is not orders", research.includes("Research, not orders."), true],
   ["research waitlist", research.includes("ELF first") && research.includes("HOOD watched"), true],
   ["research social check", research.includes("Open-book social check") && research.includes("flatten still $35.50"), true],
-  ["open research chapter", page.includes('id="research"') && page.includes("OPEN RESEARCH"), true],
+  ["open research chapter gone", page.includes("OPEN RESEARCH"), false],
   ["holdings has no waitlist wall", page.includes('id="waitlist"'), false],
   ["thinking does not invent option mark", thinking.includes("134") === false, true],
   ["logged RKLB thesis unchanged", rklbThesis.includes("$123M to $234M"), true],
@@ -207,8 +214,7 @@ const copyChecks = [
   ],
   [
     "total return is a signed figure",
-    readFileSync(join(root, "js/site.js"), "utf8").includes('row("Total return"') &&
-      readFileSync(join(root, "js/site.js"), "utf8").includes("signedFigure(signedPct(book.totalReturn)"),
+    readFileSync(join(root, "js/site.js"), "utf8").includes("signedFigure(signedPct(book.totalReturn)"),
     true,
   ],
   [
@@ -216,6 +222,25 @@ const copyChecks = [
     readFileSync(join(root, "js/site.js"), "utf8").includes("signedFigure(signedMoney(book.dollar)"),
     true,
   ],
+  [
+    "drawdown from logged equity",
+    readFileSync(join(root, "js/site.js"), "utf8").includes("maxDrawdown") &&
+      readFileSync(join(root, "js/site.js"), "utf8").includes("equity.jsonl"),
+    true,
+  ],
+  [
+    "no pending tickets as fills",
+    /event === "intent"/.test(readFileSync(join(root, "js/site.js"), "utf8")) === false &&
+      readFileSync(join(root, "js/site.js"), "utf8").includes('t.event === "fill" && t.side === "buy"'),
+    true,
+  ],
+  [
+    "no live-stop leakage",
+    readFileSync(join(root, "js/site.js"), "utf8").includes("fill.stop") === false &&
+      page.includes("software stop") === false,
+    true,
+  ],
+  ["no old log chapters", page.includes('class="chapter"') || page.includes("chapter__no"), false],
 ];
 for (const [name, got, want] of copyChecks) {
   if (got !== want) {

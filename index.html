@@ -6,14 +6,14 @@
     <title>Fathom</title>
     <meta
       name="description"
-      content="Fathom — public $500 experiment on a dedicated account. Software stops. Visible book. Not trading advice."
+      content="Fathom — public $500 experiment on a dedicated account. Visible book. Not trading advice."
     />
     <meta property="og:title" content="Fathom" />
     <meta
       property="og:description"
       content="Public log of a personal $500 experiment. Not trading advice. You can lose money."
     />
-    <meta name="theme-color" content="#0d0d0d" />
+    <meta name="theme-color" content="#0c0c0c" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,9 +24,7 @@
     <link rel="stylesheet" href="./css/site.css" />
   </head>
   <body>
-    <a class="skip" href="#performance">Skip to numbers</a>
-    <div class="atmosphere" aria-hidden="true"></div>
-    <canvas class="trail" aria-hidden="true"></canvas>
+    <a class="skip" href="#scoreboard">Skip to scoreboard</a>
 
     <p class="rail" role="note">
       <span>Not trading advice</span>
@@ -35,13 +33,6 @@
       <span aria-hidden="true">/</span>
       <span>You can lose money</span>
     </p>
-
-    <div class="frame" aria-hidden="true">
-      <p class="frame__tl" id="coords">X 0.00&nbsp;&nbsp;Y 0.00</p>
-      <p class="frame__tr" id="updated-stamp">last mark 5:49 PM ET</p>
-      <p class="frame__bl">after the close</p>
-      <p class="frame__br">v.01 · $500 public book</p>
-    </div>
 
     <header class="mast">
       <div class="lockup">
@@ -52,59 +43,38 @@
         </svg>
         <h1 class="wordmark">Fathom</h1>
       </div>
-      <div class="marquee" aria-hidden="true">
-        <div class="marquee__track">
-          <span>Fathom</span><span>Fathom</span><span>Fathom</span
-          ><span>Fathom</span><span>Fathom</span><span>Fathom</span>
-        </div>
-      </div>
-      <p class="name">Morgan operates · Cole executes · Riley binds</p>
-      <p class="lede">
-        Morgan is COS and operator. Cole executes. Riley binds risk. A $500
-        public book. Stops live in software. You can see the whole thing.
-      </p>
-      <p class="notice">
-        This is a public log of a personal $500 experiment. It is not advice
-        and not a recommendation to buy or sell anything. A past result here
-        does not mean a future one. You can lose money.
-      </p>
+      <p class="mast__line">A public $500 experiment. One book. Delayed marks only.</p>
     </header>
 
-    <nav class="pill" aria-label="Chapters">
-      <a href="#performance" class="is-active"><b>01</b> Numbers</a>
-      <a href="#how-it-works"><b>02</b> How it works</a>
-      <a href="#pipeline"><b>03</b> Pipeline</a>
-      <a href="#team"><b>04</b> About the team</a>
-      <a href="#holdings"><b>05</b> What’s open</a>
-      <a href="#research"><b>06</b> Open research</a>
-      <a href="#reasoning"><b>07</b> Why we bought</a>
-      <a href="#improvements"><b>08</b> What changed</a>
+    <nav class="toc" aria-label="Page">
+      <a href="#scoreboard" class="is-active">Scoreboard</a>
+      <a href="#firm">The firm</a>
+      <a href="#decision">Decision</a>
+      <a href="#portfolio">Portfolio</a>
+      <a href="#record">Track record</a>
+      <a href="#journal">Journal</a>
+      <a href="#method">How it works</a>
     </nav>
 
     <main>
-      <section id="performance" class="chapter">
-        <header class="chapter__head">
-          <p class="chapter__no">01</p>
-          <div>
-            <h2>NUMBERS</h2>
-            <p class="chapter__sub">
-              Public snapshots from the log. SPY is Yahoo’s official daily
-              prints only. One session so far.
-            </p>
-          </div>
-        </header>
-        <div id="kpis" class="rows" aria-live="polite">
-          <p class="loading">Loading the public book…</p>
-        </div>
-        <div id="secondary" class="rows rows--tight" hidden></div>
+      <section id="scoreboard" class="band band--hero">
+        <p class="kicker">Scoreboard</p>
+        <p class="hero__span" id="span">
+          <span class="hero__from">$500.00</span>
+          <span class="hero__arrow" aria-hidden="true">→</span>
+          <span class="hero__now">$505.40</span>
+        </p>
+        <ul class="hero__stats" id="kpis" aria-live="polite">
+          <li class="loading">Loading the public book…</li>
+        </ul>
         <figure class="plot">
           <div class="plot__head">
-            <p class="hud-label">Desk vs S&amp;P 500 since the first trade day</p>
+            <p class="hud">One curve. Logged equity only.</p>
             <p class="legend">
               <span class="legend__swatch" aria-hidden="true"></span>
               Desk
               <span class="legend__swatch legend__swatch--spy" aria-hidden="true"></span>
-              S&amp;P 500 (SPY)
+              S&amp;P 500 (SPY, official daily)
             </p>
           </div>
           <div id="chart" class="chart" role="img" aria-label="Book equity over time"></div>
@@ -112,103 +82,80 @@
         </figure>
       </section>
 
-      <section id="how-it-works" class="chapter">
-        <header class="chapter__head">
-          <p class="chapter__no">02</p>
-          <div>
-            <h2>HOW IT WORKS</h2>
-            <p id="method-lede" class="chapter__sub"></p>
-          </div>
+      <section id="firm" class="band">
+        <header class="band__head">
+          <p class="kicker">The firm</p>
+          <h2>Morgan operates. Cole executes. Riley binds risk.</h2>
+          <p class="lede" id="firm-lede"></p>
         </header>
-        <div id="methodology" class="doctrine"></div>
+        <p class="status" id="firm-status"></p>
+        <div id="triad" class="triad"></div>
+        <p id="specialists" class="quiet"></p>
+        <p id="firm-foot" class="quiet"></p>
       </section>
 
-      <section id="pipeline" class="chapter">
-        <header class="chapter__head">
-          <p class="chapter__no">03</p>
-          <div>
-            <h2>PIPELINE</h2>
-            <p id="pipe-lede" class="chapter__sub"></p>
-          </div>
+      <section id="decision" class="band">
+        <header class="band__head">
+          <p class="kicker">Decision feed</p>
+          <h2>Completed cycles.</h2>
+          <p class="lede">
+            Fills and finished rejects only. Pending tickets are not fills.
+          </p>
         </header>
-        <div id="pipe" class="pipe"></div>
+        <ol id="feed" class="feed"></ol>
       </section>
 
-      <section id="team" class="chapter">
-        <header class="chapter__head">
-          <p class="chapter__no">04</p>
-          <div>
-            <h2>ABOUT THE TEAM</h2>
-            <p id="team-lede" class="chapter__sub"></p>
-          </div>
+      <section id="portfolio" class="band">
+        <header class="band__head">
+          <p class="kicker">Portfolio</p>
+          <h2>Coarse book. Delayed.</h2>
+          <p class="lede">
+            RKLB queued flatten Monday RTH. SMCI Sep 4 40 call queued
+            close Monday RTH. CRWV hold to 83.70.
+          </p>
         </header>
-        <div id="roster" class="roster"></div>
-        <p id="team-foot" class="roster__foot"></p>
+        <div id="positions" class="book"></div>
       </section>
 
-      <section id="holdings" class="chapter">
-        <header class="chapter__head">
-          <p class="chapter__no">05</p>
-          <div>
-            <h2>WHAT’S OPEN</h2>
-            <p class="chapter__sub">
-              RKLB queued flatten Monday RTH. SMCI Sep 4 40 call queued
-              close Monday RTH. CRWV hold to 83.70.
-            </p>
-          </div>
+      <section id="record" class="band">
+        <header class="band__head">
+          <p class="kicker">Track record</p>
+          <h2>Empty until a close.</h2>
+          <p class="lede">
+            No win rate, no closed P/L. The book is still open.
+          </p>
         </header>
-        <div id="thinking" class="thought"></div>
-        <div id="positions" class="drawer"></div>
-        <p class="center-note">
-          Written for normal people. After-close research isn’t a live broker
-          mark. Private account details are stripped.
-        </p>
-        <div class="triggers">
-          <h3>What Monday does</h3>
-          <ul id="triggers"></ul>
-        </div>
+        <div id="closes" class="empty"></div>
       </section>
 
-      <section id="research" class="chapter">
-        <header class="chapter__head">
-          <p class="chapter__no">06</p>
-          <div>
-            <h2>OPEN RESEARCH</h2>
-            <p id="research-lede" class="chapter__sub"></p>
-          </div>
+      <section id="journal" class="band">
+        <header class="band__head">
+          <p class="kicker">Experiment journal</p>
+          <h2>What the public log recorded.</h2>
+          <p class="lede">Rule changes and finished notes. No silent edits.</p>
         </header>
-        <div id="research-notes" class="research"></div>
+        <div id="journal-list" class="journal"></div>
       </section>
 
-      <section id="reasoning" class="chapter">
-        <header class="chapter__head">
-          <p class="chapter__no">07</p>
-          <div>
-            <h2>WHY WE BOUGHT</h2>
-            <p class="chapter__sub">
-              What we said at the fill. Those theses stay as logged.
-            </p>
-          </div>
+      <section id="method" class="band">
+        <header class="band__head">
+          <p class="kicker">How it works</p>
+          <h2 id="method-title">High-level only.</h2>
+          <p id="method-lede" class="lede"></p>
         </header>
-        <div id="trades" class="record"></div>
-      </section>
-
-      <section id="improvements" class="chapter">
-        <header class="chapter__head">
-          <p class="chapter__no">08</p>
-          <div>
-            <h2>WHAT CHANGED</h2>
-            <p class="chapter__sub">
-              Rule changes stay on the record. No silent edits.
-            </p>
-          </div>
-        </header>
-        <div id="changelog" class="revisions"></div>
+        <div id="methodology" class="method"></div>
       </section>
     </main>
 
     <footer class="foot">
-      <p class="foot__brand">Fathom</p>
+      <div class="lockup lockup--foot">
+        <svg class="fathom fathom--sm" viewBox="0 0 40 96" aria-hidden="true">
+          <path fill="none" stroke="#eee8df" stroke-width="1.25" d="M20 4v74"/>
+          <path fill="none" stroke="#eee8df" stroke-width="1.25" d="M10 44h20M10 56h20M10 68h20"/>
+          <path fill="#f25c12" d="M20 92 14.2 78h11.6z"/>
+        </svg>
+        <p class="foot__brand">Fathom</p>
+      </div>
       <p>
         Fathom is a public $500 experiment on a dedicated account. The site
         reads public files in <code>data/</code>. No account numbers, order IDs,
@@ -220,8 +167,8 @@
       </p>
       <p class="foot__notice" id="disclaimer">
         Not trading advice. This site is a public log of a personal $500
-        experiment. It does not tell you to buy or sell. What the book did so
-        far does not mean it will do that again. You can lose money.
+        experiment. It is not a recommendation to buy or sell. What the book
+        did so far does not mean it will do that again. You can lose money.
       </p>
     </footer>
 
