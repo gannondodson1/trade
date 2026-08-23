@@ -449,13 +449,11 @@ function renderChart(equity, start, spy) {
 }
 
 function renderFirm(team, thought, meta) {
-  const triadNames = new Set(["Morgan", "Cole", "Riley"]);
   const parsed = parseTeam(team);
-  const triadOrder = ["Morgan", "Cole", "Riley"];
-  const triad = triadOrder
+  const triad = ["Morgan", "Cole", "Riley"]
     .map((name) => parsed.members.find((m) => m.name === name))
     .filter(Boolean);
-  const others = parsed.members.filter((m) => !triadNames.has(m.name));
+  const others = parsed.members.filter((m) => !["Morgan", "Cole", "Riley"].includes(m.name));
   const lede = document.getElementById("firm-lede");
   if (lede) lede.textContent = parsed.lede;
   document.getElementById("triad").innerHTML = triad
