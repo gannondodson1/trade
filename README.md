@@ -6,7 +6,7 @@ Live project site (after GitHub Pages is enabled):
 
 <https://gannondodson1.github.io/trade/>
 
-The site is a single static page. It fetches JSON and markdown from `data/` in the browser. There is no backend and no secrets.
+The site is a single static page: scoreboard, the firm, decision feed, portfolio, track record, experiment journal, and how it works. It fetches JSON and markdown from `data/` in the browser. There is no backend and no secrets.
 
 ## What you will see
 

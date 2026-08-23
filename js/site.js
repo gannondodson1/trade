@@ -47,8 +47,7 @@ function escapeHtml(value) {
 }
 
 function money(n, digits = 2) {
-  const abs = Math.abs(Number(n));
-  return abs.toLocaleString("en-US", {
+  return Math.abs(Number(n)).toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: digits,
@@ -68,12 +67,6 @@ function signedPct(n) {
   return `${sign}${Math.abs(value).toFixed(2)}%`;
 }
 
-function signWord(n) {
-  if (n > 0) return "plus";
-  if (n < 0) return "minus";
-  return "flat";
-}
-
 function signTone(n) {
   if (n > 0) return "up";
   if (n < 0) return "down";
@@ -82,10 +75,6 @@ function signTone(n) {
 
 function signedFigure(formatted, n) {
   return `<span class="signed signed--${signTone(n)}">${escapeHtml(formatted)}</span>`;
-}
-
-function signMark(n) {
-  return `<span class="sign sign--${signTone(n)}">${signWord(n)}</span>`;
 }
 
 function formatClock(iso) {
@@ -108,26 +97,39 @@ function formatTime(iso) {
   });
 }
 
-function displayQty(raw) {
-  return (Math.round(Number(raw) * 100) / 100).toFixed(2);
+function formatDay(iso) {
+  return new Date(iso).toLocaleString("en-US", {
+    timeZone: "America/New_York",
+    month: "short",
+    day: "numeric",
+  });
 }
 
-const NUM = String.raw`\d+(?:\.\d+)?`;
-
-function parseFillNote(note) {
-  const share = new RegExp(`Filled\\s+(${NUM})\\s+shares\\s+at\\s+\\$?(${NUM})`, "i").exec(note || "");
-  if (share) {
-    return { kind: "shares", qty: Number(share[1]), price: Number(share[2]) };
-  }
-  const call = new RegExp(`Filled\\s+(${NUM})\\s+contract[s]?\\s+at\\s+\\$?(${NUM})`, "i").exec(note || "");
-  if (call) {
-    return { kind: "contract", qty: Number(call[1]), price: Number(call[2]) };
-  }
-  return null;
+function sessionCount(equity) {
+  const days = new Set(
+    equity.map((row) =>
+      new Date(row.ts).toLocaleDateString("en-US", { timeZone: "America/New_York" })
+    )
+  );
+  return days.size;
 }
 
-function exactPx(n) {
-  return Number(n).toFixed(2);
+function maxDrawdown(equity) {
+  if (!equity.length) return null;
+  let peak = Number(equity[0].equity);
+  let worst = 0;
+  let worstPct = 0;
+  for (const row of equity) {
+    const eq = Number(row.equity);
+    if (eq > peak) peak = eq;
+    const dd = eq - peak;
+    if (dd < worst) {
+      worst = dd;
+      worstPct = peak ? (dd / peak) * 100 : 0;
+    }
+  }
+  if (worst >= 0) return null;
+  return { dollar: worst, pct: worstPct };
 }
 
 function openFills(trades) {
@@ -139,55 +141,49 @@ function openFills(trades) {
   return trades.filter((t) => t.event === "fill" && t.side === "buy" && !closes.has(t.symbol));
 }
 
-function parseThinking(md) {
-  const lines = md.split(/\r?\n/);
-  const updated = (md.match(/^Updated:\s*(.+)$/m) || [])[1]?.trim() || "";
-  const status = (md.match(/^Status:\s*(.+)$/m) || [])[1]?.trim() || "";
-  const stance = {};
-  const preamble = [];
-  const waitlist = [];
-  let inTriggers = false;
-  const triggers = [];
-
-  for (const raw of lines) {
+function parseTeam(md) {
+  const lede = md
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l && !l.startsWith("#") && !l.startsWith("- "));
+  const members = [];
+  for (const raw of md.split(/\r?\n/)) {
     const line = raw.trim();
-    if (!line || line.startsWith("# ")) continue;
-    if (/^Updated:/i.test(line) || /^Status:/i.test(line)) continue;
-    if (/^What would make it do something/i.test(line) || /^What Monday does/i.test(line)) {
-      inTriggers = true;
-      continue;
-    }
-    if (inTriggers) {
-      if (line.startsWith("- ")) triggers.push(line.slice(2).trim());
-      continue;
-    }
-    const symbol = /^(RKLB|CRWV|SMCI)\b[:.]?\s*(.*)$/.exec(line);
-    if (symbol) {
-      stance[symbol[1]] = symbol[2] || line;
-      continue;
-    }
-    if (/waitlist/i.test(line) || /^Open-book social check/i.test(line)) {
-      waitlist.push(line);
-      continue;
-    }
-    preamble.push(line);
+    const match = /^- ([A-Za-z]+) - ([^.]+)\.\s*(.*)$/.exec(line);
+    if (!match) continue;
+    members.push({ name: match[1], role: match[2], bio: match[3] });
   }
+  const closer =
+    md
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith("#") && !l.startsWith("- ") && l !== lede)
+      .at(-1) || "";
+  return { lede: lede || "", members, closer };
+}
 
-  return { updated, status, preamble, stance, waitlist, triggers };
+function parseChangelog(md) {
+  const chunks = md.split(/^## /m).map((c) => c.trim()).filter(Boolean);
+  return chunks
+    .filter((chunk) => !chunk.startsWith("#"))
+    .map((chunk) => {
+      const [title, ...rest] = chunk.split(/\r?\n/);
+      return { title: title.trim(), body: rest.join("\n").trim() };
+    });
 }
 
 function parseMethodology(md) {
-  const edge = /## Edge\n+([\s\S]*?)\n+## Hard limits/.exec(md);
-  const limits = /## Hard limits\n+([\s\S]*?)\n+## Evidence/.exec(md);
-  const evidence = /## Evidence\n+([\s\S]*)$/.exec(md);
   const lede = md
     .split("\n")
     .map((l) => l.trim())
     .find((l) => l && !l.startsWith("#"));
+  const edge = /## Edge\n+([\s\S]*?)\n+## Hard limits/.exec(md);
+  const riskLine = (md.match(/The risk book is internal\.[^\n]*/)?.[0] || "").trim();
+  const evidence = /## Evidence\n+([\s\S]*)$/.exec(md);
   return {
     lede: lede || "",
     edge: (edge?.[1] || "").trim(),
-    limits: (limits?.[1] || "").trim(),
+    risk: riskLine,
     evidence: (evidence?.[1] || "").trim(),
   };
 }
@@ -241,127 +237,72 @@ function mdBlocks(text) {
   return out.join("");
 }
 
-function parseResearch(md) {
-  const lines = md
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith("#"));
-  const lede = lines.find((l) => /research, not orders/i.test(l) && !l.includes(":")) || lines[0] || "";
-  const notes = lines
-    .filter((l) => l !== lede)
-    .map((line) => {
-      const split = line.indexOf(": ");
-      if (split === -1) return { label: "Research", body: line };
-      return { label: line.slice(0, split), body: line.slice(split + 2) };
-    });
-  return { lede, notes };
-}
-
-function parseTeam(md) {
-  const lede = md
-    .split("\n")
-    .map((l) => l.trim())
-    .find((l) => l && !l.startsWith("#") && !l.startsWith("- "));
-  const members = [];
-  for (const raw of md.split(/\r?\n/)) {
-    const line = raw.trim();
-    const match = /^- ([A-Za-z]+) - ([^.]+)\.\s*(.*)$/.exec(line);
-    if (!match) continue;
-    members.push({ name: match[1], role: match[2], bio: match[3] });
-  }
-  const closer = md
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith("#") && !l.startsWith("- ") && l !== lede)
-    .at(-1) || "";
-  return { lede: lede || "", members, closer };
-}
-
-function parseChangelog(md) {
-  const chunks = md.split(/^## /m).map((c) => c.trim()).filter(Boolean);
-  return chunks
-    .filter((chunk) => !chunk.startsWith("#"))
-    .map((chunk) => {
-      const [title, ...rest] = chunk.split(/\r?\n/);
-      return { title: title.trim(), body: rest.join("\n").trim() };
-    });
-}
-
 function computeBook(meta, equity, trades) {
   const start = Number(meta.start_equity ?? START_FALLBACK);
   const last = equity.at(-1) || {};
   const lastEquity = Number(last.equity ?? meta.last_equity);
   const cash = Number(last.cash ?? meta.cash);
   const fills = openFills(trades);
-  const deployed = fills.reduce((sum, t) => sum + Number(t.notional || 0), 0);
   const closed = Number(meta.closed_trades ?? 0);
-  const realized = closed === 0 ? 0 : null;
   const dollar = lastEquity - start;
   const totalReturn = (dollar / start) * 100;
-  const openPnl = realized === 0 ? dollar : null;
   return {
     start,
     lastEquity,
     cash,
     fills,
-    deployed,
     closed,
-    realized,
     dollar,
     totalReturn,
-    openPnl,
+    sessions: sessionCount(equity),
+    drawdown: maxDrawdown(equity),
     last,
   };
 }
 
-function row(label, value, note, extra = "") {
-  return `
-    <div class="row ${extra}">
-      <dt>${label}</dt>
-      <dd>${value}</dd>
-      <small>${note}</small>
-    </div>
-  `;
-}
+function renderScoreboard(book, meta, spy) {
+  const from = document.querySelector(".hero__from");
+  const now = document.querySelector(".hero__now");
+  if (from) from.textContent = money(book.start);
+  if (now) now.textContent = money(book.lastEquity);
 
-function renderKpis(book, meta) {
-  const flag =
-    book.dollar > 0 ? "up so far" : book.dollar < 0 ? "down so far" : "flat so far";
-
-  document.getElementById("kpis").innerHTML = `
-    ${row("Portfolio", `${escapeHtml(money(book.lastEquity))} <span class="sign">${flag}</span>`, `Started at ${escapeHtml(money(book.start))}. Last public snapshot.`, "row--hero")}
-    ${row("Total return", `${signedFigure(signedPct(book.totalReturn), book.totalReturn)} ${signMark(book.totalReturn)}`, `Last equity minus ${escapeHtml(money(book.start))}, divided by ${escapeHtml(money(book.start))}. Account opened Aug 21, 2026.`)}
-    ${row("Profit or loss", `${signedFigure(signedMoney(book.dollar), book.dollar)} ${signMark(book.dollar)}`, `Last equity minus the ${escapeHtml(money(book.start))} start.`)}
-    ${row("Cash", escapeHtml(money(book.cash)), "What’s left after the three fills.")}
-  `;
-
-  const realizedText = book.realized === 0 ? money(0) : "—";
-  const openText = book.openPnl == null ? "—" : signedMoney(book.openPnl);
-  const deployedParts = book.fills
-    .map((f) => money(f.notional, Number.isInteger(Number(f.notional)) ? 0 : 2))
-    .join(" + ");
   const deskPct = Number(book.totalReturn.toFixed(2));
   const spyClosePct = book.spyClosePct;
   const vsSpy = spyClosePct == null ? null : Number((deskPct - spyClosePct).toFixed(2));
-  document.getElementById("secondary").hidden = false;
-  document.getElementById("secondary").innerHTML = `
-    ${row("Realized P/L", escapeHtml(realizedText), "Nothing’s closed yet, so this is $0.")}
-    ${row("Open P/L", book.openPnl == null ? escapeHtml(openText) : `${signedFigure(openText, book.openPnl)} ${signMark(book.openPnl)}`, "Last equity versus start, minus realized.")}
-    ${row("Capital deployed", escapeHtml(money(book.deployed)), `Filled notionals still open (${deployedParts}).`, "is-accent")}
-    ${row("Closed trades", escapeHtml(String(book.closed)), "No win rate until something closes.")}
-    ${
-      vsSpy == null
-        ? ""
-        : row(
-            "Vs S&P 500",
-            `${signedFigure(signedPct(vsSpy), vsSpy)} ${signMark(vsSpy)}`,
-            `Desk ${signedPct(deskPct)} minus SPY ${signedPct(spyClosePct)} from the Aug 20 close. That’s the only definition used here.`
-          )
-    }
-  `;
+  const dd = book.drawdown;
+  const days = book.sessions === 1 ? "1 session" : `${book.sessions} sessions`;
 
-  const stamp = meta.updated_et.replace(/^Updated:\s*/i, "");
-  document.getElementById("updated-stamp").textContent = `last mark ${stamp}`;
+  const cells = [
+    ["Dollar P/L", signedFigure(signedMoney(book.dollar), book.dollar), `Last equity minus ${money(book.start)}.`],
+    ["Total return", signedFigure(signedPct(book.totalReturn), book.totalReturn), `From the ${money(book.start)} start.`],
+    vsSpy == null
+      ? null
+      : [
+          "Vs S&P 500",
+          signedFigure(signedPct(vsSpy), vsSpy),
+          `Desk ${signedPct(deskPct)} minus SPY ${signedPct(spyClosePct)} from the Aug 20 close.`,
+        ],
+    dd
+      ? [
+          "Max drawdown",
+          signedFigure(signedPct(dd.pct), dd.pct),
+          `${signedMoney(dd.dollar)} from a logged peak. equity.jsonl only.`,
+        ]
+      : null,
+    ["Day count", escapeHtml(days), "Unique dates in the equity log."],
+  ].filter(Boolean);
+
+  document.getElementById("kpis").innerHTML = cells
+    .map(
+      ([label, value, note]) => `
+        <li class="stat">
+          <dt>${escapeHtml(label)}</dt>
+          <dd>${value}</dd>
+          <small>${escapeHtml(note)}</small>
+        </li>
+      `
+    )
+    .join("");
 }
 
 function yTicks(min, max) {
@@ -416,12 +357,12 @@ function renderChart(equity, start, spy) {
   const lo = minV - pad;
   const hi = maxV + pad;
 
-  const W = 1000;
-  const H = 360;
-  const L = 64;
-  const R = 118;
-  const T = 18;
-  const B = 42;
+  const W = 1100;
+  const H = 400;
+  const L = 72;
+  const R = 108;
+  const T = 22;
+  const B = 46;
   const innerW = W - L - R;
   const innerH = H - T - B;
   const xAt = (ts) => L + ((ts - t0) / (t1 - t0 || 1)) * innerW;
@@ -430,6 +371,7 @@ function renderChart(equity, start, spy) {
   const deskPts = desk.map((p) => ({ ...p, x: xAt(p.ts), y: y(p.pct) }));
   const spyDraw = spyPts.map((p) => ({ ...p, x: xAt(p.ts), y: y(p.pct) }));
   const deskPath = deskPts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+  const area = `${deskPath} L${deskPts.at(-1).x.toFixed(1)},${y(0).toFixed(1)} L${deskPts[0].x.toFixed(1)},${y(0).toFixed(1)} Z`;
   const spyPath = spyDraw.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
   const ticks = yTicks(lo, hi);
   const zeroY = y(0);
@@ -439,32 +381,36 @@ function renderChart(equity, start, spy) {
   const grid = ticks
     .map((tick) => {
       const yy = y(tick);
-      return `<line x1="${L}" y1="${yy.toFixed(1)}" x2="${W - R}" y2="${yy.toFixed(1)}" stroke="rgba(238,232,223,0.10)" />
-        <text x="${L - 10}" y="${yy + 4}" fill="#8a847a" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="end">${signedPct(tick)}</text>`;
+      return `<line x1="${L}" y1="${yy.toFixed(1)}" x2="${W - R}" y2="${yy.toFixed(1)}" stroke="rgba(238,232,223,0.08)" />
+        <text x="${L - 12}" y="${yy + 4}" fill="#8a847a" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="end">${signedPct(tick)}</text>`;
     })
     .join("");
 
   const xLabels = [
-    ...spyDraw.map((p) => `<text x="${p.x.toFixed(1)}" y="${H - 14}" fill="#8a847a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">${escapeHtml(p.label.replace("SPY ", ""))}</text>`),
+    ...spyDraw.map(
+      (p) =>
+        `<text x="${p.x.toFixed(1)}" y="${H - 14}" fill="#8a847a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">${escapeHtml(p.label.replace("SPY ", ""))}</text>`
+    ),
     ...deskPts
       .filter((_, i) => i === 0 || i === deskPts.length - 1)
-      .map((p) => `<text x="${p.x.toFixed(1)}" y="${H - 28}" fill="#8a847a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">${escapeHtml(formatTime(p.row.ts))}</text>`),
+      .map(
+        (p) =>
+          `<text x="${p.x.toFixed(1)}" y="${H - 30}" fill="#8a847a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">${escapeHtml(formatTime(p.row.ts))}</text>`
+      ),
   ].join("");
 
   host.innerHTML = `
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       ${grid}
-      <line x1="${L}" y1="${zeroY.toFixed(1)}" x2="${W - R}" y2="${zeroY.toFixed(1)}" stroke="rgba(238,232,223,0.22)" stroke-dasharray="4 5" />
-      <path d="${spyPath}" fill="none" stroke="rgba(238,232,223,0.42)" stroke-width="1.5" />
-      ${spyDraw
-        .map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#0d0d0d" stroke="rgba(238,232,223,0.55)" stroke-width="1.4" />`)
-        .join("")}
-      <path d="${deskPath}" fill="none" stroke="#f25c12" stroke-width="2.2" />
+      <line x1="${L}" y1="${zeroY.toFixed(1)}" x2="${W - R}" y2="${zeroY.toFixed(1)}" stroke="rgba(238,232,223,0.2)" stroke-dasharray="3 6" />
+      <path d="${area}" fill="rgba(242,92,18,0.08)" />
+      <path d="${spyPath}" fill="none" stroke="rgba(238,232,223,0.38)" stroke-width="1.4" />
+      <path d="${deskPath}" fill="none" stroke="#f25c12" stroke-width="2.3" />
       ${deskPts
-        .map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.4" fill="#0d0d0d" stroke="#f25c12" stroke-width="1.6" />`)
+        .map((p) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.2" fill="#0c0c0c" stroke="#f25c12" stroke-width="1.5" />`)
         .join("")}
       <text x="${W - R + 10}" y="${last.y + 4}" fill="#eee8df" font-size="12" font-family="IBM Plex Mono, monospace">${escapeHtml(signedPct(last.pct))} desk</text>
-      <text x="${W - R + 10}" y="${spyLast.y + 16}" fill="#c4bdb2" font-size="11" font-family="IBM Plex Mono, monospace">${escapeHtml(signedPct(spyClosePct))} SPY</text>
+      <text x="${W - R + 10}" y="${spyLast.y + 16}" fill="#c8c1b6" font-size="11" font-family="IBM Plex Mono, monospace">${escapeHtml(signedPct(spyClosePct))} SPY</text>
       ${xLabels}
     </svg>
     <div class="chart-tip" hidden></div>
@@ -494,7 +440,7 @@ function renderChart(equity, start, spy) {
   deskPts.forEach((p) => {
     bind(
       p,
-      `<strong>${escapeHtml(formatClock(p.row.ts))} ET</strong><br>Desk ${escapeHtml(signedPct(p.pct))}<br>Equity ${escapeHtml(money(p.row.equity))}<br>${escapeHtml(p.row.note || "")}`
+      `<strong>${escapeHtml(formatClock(p.row.ts))} ET</strong><br>Desk ${escapeHtml(signedPct(p.pct))}<br>Equity ${escapeHtml(money(p.row.equity))}`
     );
   });
   spyDraw.forEach((p) => {
@@ -502,204 +448,121 @@ function renderChart(equity, start, spy) {
   });
 }
 
-function renderMethodology(md) {
-  const parsed = parseMethodology(md);
-  document.getElementById("method-lede").textContent = parsed.lede;
-  document.getElementById("methodology").innerHTML = `
-    <div class="doctrine__col">
-      <h3>Two ways in</h3>
-      ${mdBlocks(parsed.edge)}
-    </div>
-    <div class="doctrine__col">
-      <h3>Hard limits</h3>
-      ${mdBlocks(parsed.limits)}
-      <p class="split__foot">${mdInline(parsed.evidence)}</p>
-    </div>
-  `;
-}
-
-function renderPipeline(spec) {
-  const lede = document.getElementById("pipe-lede");
-  const host = document.getElementById("pipe");
-  if (lede) lede.textContent = spec?.note || "Public skeleton only.";
-  if (!host) return;
-
-  const flow = spec?.flow || [];
-  const terminals = spec?.terminals || ["Owned", "Rejected"];
-  const owned = spec?.owned || [];
-  const rejected = spec?.rejected || [];
-
-  const stage = (label, rows) => {
-    const body = rows.length
-      ? rows
-          .map((row) => {
-            if (typeof row === "string") {
-              return `<p class="pipe__name">${escapeHtml(row)}</p>`;
-            }
-            const state = row.state ? `<p class="pipe__empty">${escapeHtml(row.state)}</p>` : "";
-            return `<p class="pipe__name">${escapeHtml(row.name || "")}</p>${state}`;
-          })
-          .join("")
-      : `<p class="pipe__empty">—</p>`;
-    return `
-      <li class="pipe__stage${rows.length ? " is-live" : ""}">
-        <p class="hud-label">${escapeHtml(label)}</p>
-        ${body}
-      </li>
-    `;
-  };
-
-  const flowHtml = flow.map((label) => stage(label, [])).join("");
-  const terminalHtml = terminals
-    .map((label) => stage(label, label === "Owned" ? owned : label === "Rejected" ? rejected : []))
-    .join("");
-
-  host.innerHTML = `
-    <ol class="pipe__flow">${flowHtml}</ol>
-    <p class="pipe__arrow" aria-hidden="true">→</p>
-    <ol class="pipe__end">${terminalHtml}</ol>
-  `;
-}
-
-function renderTeam(md) {
-  const parsed = parseTeam(md);
-  const lede = document.getElementById("team-lede");
-  const roster = document.getElementById("roster");
-  const foot = document.getElementById("team-foot");
+function renderFirm(team, thought, meta) {
+  const triadNames = new Set(["Morgan", "Cole", "Riley"]);
+  const parsed = parseTeam(team);
+  const triadOrder = ["Morgan", "Cole", "Riley"];
+  const triad = triadOrder
+    .map((name) => parsed.members.find((m) => m.name === name))
+    .filter(Boolean);
+  const others = parsed.members.filter((m) => !triadNames.has(m.name));
+  const lede = document.getElementById("firm-lede");
   if (lede) lede.textContent = parsed.lede;
-  if (roster) {
-    roster.innerHTML = parsed.members
-      .map(
-        (seat) => `
-          <article class="seat">
-            <p class="seat__role">${escapeHtml(seat.role)}</p>
-            <h3 class="seat__name">${escapeHtml(seat.name)}</h3>
-            <p class="seat__bio">${escapeHtml(seat.bio)}</p>
-          </article>
-        `
-      )
-      .join("");
-  }
-  if (foot) foot.textContent = parsed.closer;
-}
-
-function renderThinking(thought) {
-  const host = document.getElementById("thinking");
-  if (!host) return;
-  const preamble = thought.preamble.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
-  host.innerHTML = `
-    <p class="hud-label">After the close</p>
-    <p class="thought__status">${escapeHtml(thought.status)}</p>
-    ${preamble}
-  `;
-}
-
-function renderPositions(book, thought) {
-  const stance = thought?.stance || {};
-  const cards = book.fills.map((fill, i) => {
-    const parsed = parseFillNote(fill.note);
-    const isOption = Boolean(fill.instrument);
-    let sub;
-    if (isOption) {
-      sub = `holding · ${parsed ? parsed.qty : 1} ${escapeHtml(fill.instrument)}`;
-    } else if (parsed) {
-      sub = `holding · ${displayQty(parsed.qty)} shares`;
-    } else {
-      sub = `holding · ${escapeHtml(fill.horizon || "open")}`;
-    }
-
-    const price = parsed?.price;
-    const lastBits = [];
-    if (price != null) lastBits.push(`Bought ${isOption ? "debit " : "near "}${money(price)}`);
-    if (fill.stop != null) lastBits.push(`Sell safety line ${money(fill.stop)}`);
-    if (fill.target != null) lastBits.push(`Profit target ${money(fill.target)}`);
-
-    const now = stance[fill.symbol];
-    const stopLabel = fill.stop != null ? exactPx(fill.stop) : "—";
-    const targetLabel = fill.target != null ? exactPx(fill.target) : "—";
-
-    return `
-      <article class="folder ${i === 0 ? "is-open" : ""}">
-        <button class="folder__tab" type="button" aria-expanded="${i === 0 ? "true" : "false"}">
-          <span class="folder__name">${escapeHtml(fill.symbol)}</span>
-          <span class="folder__meta">${sub}</span>
-          <span class="folder__chev" aria-hidden="true">›</span>
-        </button>
-        <div class="folder__body">
-          <p>${lastBits.join(" · ")}</p>
-          ${now ? `<p>${escapeHtml(now)}</p>` : ""}
-          <p class="folder__foot">software stop ${escapeHtml(stopLabel)} or target ${escapeHtml(targetLabel)}</p>
-        </div>
-      </article>
-    `;
-  });
-  document.getElementById("positions").innerHTML = cards.join("") || "<p class='loading'>No open fills.</p>";
-  document.querySelectorAll(".folder__tab").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const folder = btn.closest(".folder");
-      const open = !folder.classList.contains("is-open");
-      folder.classList.toggle("is-open", open);
-      btn.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-  });
-}
-
-function renderResearch(md) {
-  const parsed = parseResearch(md);
-  const lede = document.getElementById("research-lede");
-  const host = document.getElementById("research-notes");
-  if (lede) lede.textContent = parsed.lede;
-  if (!host) return;
-  host.innerHTML = parsed.notes
+  document.getElementById("triad").innerHTML = triad
     .map(
-      (note) => `
-        <article class="research__note">
-          <p class="hud-label">${escapeHtml(note.label)}</p>
-          <p>${escapeHtml(note.body)}</p>
+      (seat) => `
+        <article class="seat">
+          <p class="seat__role">${escapeHtml(seat.role)}</p>
+          <h3 class="seat__name">${escapeHtml(seat.name)}</h3>
+          <p class="seat__bio">${escapeHtml(seat.bio)}</p>
+        </article>
+      `
+    )
+    .join("");
+  document.getElementById("specialists").textContent = others.length
+    ? `Specialists: ${others.map((s) => s.name).join(", ")}.`
+    : "";
+  document.getElementById("firm-foot").textContent = parsed.closer;
+  const stamp = thought.updated || meta.updated_et;
+  document.getElementById("firm-status").textContent = [
+    thought.status || "Delayed public status.",
+    stamp ? `Last public note ${stamp}.` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function parseThinking(md) {
+  return {
+    updated: (md.match(/^Updated:\s*(.+)$/m) || [])[1]?.trim() || "",
+    status: (md.match(/^Status:\s*(.+)$/m) || [])[1]?.trim() || "",
+  };
+}
+
+function renderDecision(trades, changelog) {
+  const fills = trades.filter((t) => t.event === "fill" && t.side === "buy");
+  const rejects = parseChangelog(changelog).filter((item) => /red-team kill/i.test(item.title));
+  const items = [
+    ...fills.map((fill) => ({
+      ts: fill.ts,
+      kind: "fill",
+      kindLabel: "Filled buy",
+      title: fill.instrument || fill.symbol,
+      body: fill.thesis || "",
+    })),
+    ...rejects.map((item) => ({
+      ts: item.title,
+      kind: "reject",
+      kindLabel: "Finished reject",
+      title: item.title.replace(/^[^—]+—\s*/, ""),
+      body: "Completed red-team cycle. Original buy records were not rewritten.",
+    })),
+  ];
+
+  const host = document.getElementById("feed");
+  if (!items.length) {
+    host.innerHTML = `<li><p>No completed cycles in the public log.</p></li>`;
+    return;
+  }
+
+  host.innerHTML = items
+    .map((item) => {
+      const when = item.ts.includes("T") ? formatDay(item.ts) : item.ts.split(" — ")[0] || item.ts;
+      return `
+        <li>
+          <time>${escapeHtml(when)}</time>
+          <p class="feed__kind feed__kind--${item.kind}">${escapeHtml(item.kindLabel)}</p>
+          <div>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${escapeHtml(item.body)}</p>
+          </div>
+        </li>
+      `;
+    })
+    .join("");
+}
+
+function renderPortfolio(pipeline) {
+  const owned = pipeline?.owned || [];
+  const host = document.getElementById("positions");
+  if (!owned.length) {
+    host.innerHTML = `<p class="quiet">No open names in the public book.</p>`;
+    return;
+  }
+  host.innerHTML = owned
+    .map(
+      (row) => `
+        <article class="holding">
+          <h3 class="holding__name">${escapeHtml(row.name)}</h3>
+          <p class="holding__state">${escapeHtml(row.state)}</p>
         </article>
       `
     )
     .join("");
 }
 
-function renderTriggers(thought) {
-  const items = thought.triggers || [];
-  document.getElementById("triggers").innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+function renderRecord(book) {
+  const host = document.getElementById("closes");
+  if (book.closed === 0) {
+    host.innerHTML = `<p>No closes yet. Track record stays empty.</p>`;
+    return;
+  }
+  host.innerHTML = `<p>${escapeHtml(String(book.closed))} closes on the public log.</p>`;
 }
 
-function renderTrades(fills) {
-  document.getElementById("trades").innerHTML = fills
-    .map((fill) => {
-      const parsed = parseFillNote(fill.note);
-      const when = `${formatClock(fill.ts)} ET · ${escapeHtml(fill.side)} · ${escapeHtml(money(fill.notional))}`;
-      const bullets = [];
-      if (fill.horizon) bullets.push(`${fill.horizon} horizon`);
-      if (fill.stop != null && fill.target != null) {
-        bullets.push(`Stop ${money(fill.stop)}; target ${money(fill.target)}.`);
-      }
-      if (fill.rr != null) bullets.push(`Logged reward-to-risk ${Number(fill.rr).toFixed(2)}.`);
-      if (parsed?.kind === "shares") {
-        bullets.push(`Filled ${parsed.qty} shares at ${money(parsed.price)}. Displayed as ${displayQty(parsed.qty)}.`);
-      }
-      if (parsed?.kind === "contract") {
-        bullets.push(`Filled ${parsed.qty} contract at ${parsed.price} (${money(fill.notional)} debit).`);
-      }
-      return `
-        <article>
-          <h3>Bought $${escapeHtml(fill.symbol)}</h3>
-          <p class="record__meta">${when} · ${escapeHtml(fill.symbol)}</p>
-          <p>${escapeHtml(fill.thesis || "")}</p>
-          ${fill.note ? `<p>${escapeHtml(fill.note)}</p>` : ""}
-          ${bullets.length ? `<ul>${bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
-        </article>
-      `;
-    })
-    .join("");
-}
-
-function renderChangelog(md) {
+function renderJournal(md) {
   const items = parseChangelog(md);
-  document.getElementById("changelog").innerHTML = items
+  document.getElementById("journal-list").innerHTML = items
     .map(
       (item) => `
         <article>
@@ -711,8 +574,24 @@ function renderChangelog(md) {
     .join("");
 }
 
+function renderMethod(md) {
+  const parsed = parseMethodology(md);
+  document.getElementById("method-lede").textContent = parsed.lede;
+  document.getElementById("methodology").innerHTML = `
+    <div>
+      <h3>Two ways in</h3>
+      ${mdBlocks(parsed.edge)}
+    </div>
+    <div>
+      <h3>What stays public</h3>
+      ${parsed.risk ? `<p>${mdInline(parsed.risk)}</p>` : ""}
+      <p>${mdInline(parsed.evidence)}</p>
+    </div>
+  `;
+}
+
 function watchNav() {
-  const links = [...document.querySelectorAll(".pill a")];
+  const links = [...document.querySelectorAll(".toc a")];
   const sections = links
     .map((a) => document.querySelector(a.getAttribute("href")))
     .filter(Boolean);
@@ -730,52 +609,6 @@ function watchNav() {
   sync();
 }
 
-function cursorTrail() {
-  const canvas = document.querySelector(".trail");
-  if (!canvas) return;
-  if (window.matchMedia("(pointer: coarse)").matches) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  const ctx = canvas.getContext("2d");
-  const pts = [];
-  const resize = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  };
-  resize();
-  window.addEventListener("resize", resize);
-  const coords = document.getElementById("coords");
-  window.addEventListener(
-    "pointermove",
-    (e) => {
-      pts.push({ x: e.clientX, y: e.clientY });
-      if (pts.length > 16) pts.shift();
-      if (coords) {
-        const nx = ((e.clientX / window.innerWidth) * 100).toFixed(2);
-        const ny = ((e.clientY / window.innerHeight) * 100).toFixed(2);
-        coords.innerHTML = `X ${nx}&nbsp;&nbsp;Y ${ny}`;
-      }
-    },
-    { passive: true }
-  );
-
-  const tick = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (pts.length > 1) {
-      ctx.beginPath();
-      ctx.strokeStyle = "rgba(242, 92, 18, 0.38)";
-      ctx.lineWidth = 1;
-      pts.forEach((p, i) => {
-        if (i === 0) ctx.moveTo(p.x, p.y);
-        else ctx.lineTo(p.x, p.y);
-      });
-      ctx.stroke();
-    }
-    requestAnimationFrame(tick);
-  };
-  tick();
-}
-
 async function main() {
   if (window.location.pathname === "/trade") {
     window.location.replace("/trade/");
@@ -783,14 +616,13 @@ async function main() {
   }
 
   try {
-    const [meta, equity, trades, methodology, team, thinking, research, changelog, spy, pipeline] = await Promise.all([
+    const [meta, equity, trades, methodology, team, thinking, changelog, spy, pipeline] = await Promise.all([
       loadJson("meta.json"),
       loadJsonl("equity.jsonl"),
       loadJsonl("trades.jsonl"),
       loadText("methodology.md"),
       loadText("team.md"),
       loadText("thinking.md"),
-      loadText("research.md"),
       loadText("changelog.md"),
       loadJson("spy.json"),
       loadJson("pipeline.json"),
@@ -799,22 +631,17 @@ async function main() {
     const book = computeBook(meta, equity, trades);
     book.spyClosePct = Number(spy?.bars?.[0]?.change_pct);
     const thought = parseThinking(thinking);
-    if (thought.updated) meta.updated_et = thought.updated;
-    renderKpis(book, meta);
+    renderScoreboard(book, meta, spy);
     renderChart(equity, book.start, spy);
-    renderMethodology(methodology);
-    renderPipeline(pipeline);
-    renderTeam(team);
-    renderThinking(thought);
-    renderPositions(book, thought);
-    renderResearch(research);
-    renderTriggers(thought);
-    renderTrades(book.fills);
-    renderChangelog(changelog);
+    renderFirm(team, thought, meta);
+    renderDecision(trades, changelog);
+    renderPortfolio(pipeline);
+    renderRecord(book);
+    renderJournal(changelog);
+    renderMethod(methodology);
     watchNav();
-    cursorTrail();
   } catch (err) {
-    document.getElementById("kpis").innerHTML = `<p class="error">${escapeHtml(err.message)}</p>`;
+    document.getElementById("kpis").innerHTML = `<li class="error">${escapeHtml(err.message)}</li>`;
   }
 }
 
