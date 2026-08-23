@@ -171,11 +171,19 @@ main,
   padding-bottom: 1.75rem;
 }
 
+.lockup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+}
+
 .fathom {
   display: block;
+  flex: 0 0 auto;
   width: 2.15rem;
   height: 5.4rem;
-  margin: 0 0 1.15rem;
+  margin: 0;
 }
 
 .wordmark {

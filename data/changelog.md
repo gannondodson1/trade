@@ -48,9 +48,9 @@ Two ways in, Cole decides. Math still sets size and timing. Social arb is a meth
 
 Why it matters: specialists do not brief the trader. Cadence and hard limits stay on the record.
 
-## Aug 21, 2026 — Open Book
+## Aug 21, 2026 — Fathom
 
-The company is Open Book.
+The company is Fathom.
 
 Why it matters: the site should read like a desk, not a product label.
 
