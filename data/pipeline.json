@@ -1,5 +1,5 @@
 {
-  "note": "Public skeleton only. Empty stages have no public names. Waitlist stays in Open research.",
+  "note": "Public skeleton only. Empty stages have no public names.",
   "flow": [
     "Discovery",
     "Research",
@@ -10,9 +10,9 @@
   ],
   "terminals": ["Owned", "Rejected"],
   "owned": [
-    { "name": "RKLB", "state": "queued flatten Monday RTH" },
-    { "name": "SMCI Sep 4 40 call", "state": "queued close Monday RTH" },
-    { "name": "CRWV", "state": "hold to 83.70" }
+    { "name": "RKLB", "state": "open" },
+    { "name": "SMCI Sep 4 40 call", "state": "open" },
+    { "name": "CRWV", "state": "open" }
   ],
   "rejected": []
 }
