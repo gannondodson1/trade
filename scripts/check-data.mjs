@@ -141,12 +141,12 @@ const copyChecks = [
   ["changelog no hard-risk book", changelog.includes("hard-risk") || changelog.includes("Daily Brief"), false],
   ["changelog red-team rklb", changelog.includes("Red-team kill on RKLB"), true],
   ["changelog red-team smci", changelog.includes("Red-team kill on SMCI, weak CRWV"), true],
-  ["changelog two monday flattens", changelog.includes("Two Monday flatten recommendations queued"), true],
+  ["changelog two monday flattens gone", changelog.includes("Two Monday flatten recommendations queued"), false],
   ["changelog no single flatten item", changelog.includes("Flatten recommendation queued for Monday open"), false],
   [
     "changelog heading count",
     changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
-    12,
+    11,
   ],
   ["team all ten names", teamNames.every((name) => team.includes(`- ${name} -`)), true],
   ["team has no Dana", team.includes("Dana"), false],
@@ -177,21 +177,20 @@ const copyChecks = [
     true,
   ],
   ["pipeline has no idea names", !["ELF", "DKNG", "SOFI"].some((n) => JSON.stringify(pipeline).includes(n)), true],
-  ["pipeline rklb queued flatten", JSON.stringify(pipeline.owned).includes("queued flatten Monday RTH"), true],
-  ["pipeline smci queued close", JSON.stringify(pipeline.owned).includes("queued close Monday RTH"), true],
-  ["pipeline crwv hold", JSON.stringify(pipeline.owned).includes("hold to 83.70"), true],
+  ["pipeline names only", pipeline.owned.every((row) => row.state === "open"), true],
+  ["pipeline no monday plan", JSON.stringify(pipeline).includes("Monday") === false, true],
   ["holdings not three unchanged holds", page.includes("The three names we still hold"), false],
-  ["holdings monday align", page.includes("RKLB queued flatten Monday RTH"), true],
+  ["holdings no monday queue", page.includes("queued flatten") === false, true],
   ["thinking no owner-brief", thinking.includes("hard-risk") || thinking.includes("Daily Brief"), false],
   ["thinking weekend stamp", thinking.includes("Aug 22, 2026, 5:00 PM ET (weekend)"), true],
-  ["thinking monday flatten", thinking.includes("FLATTEN RKLB and CLOSE SMCI"), true],
-  ["thinking hold crwv", thinking.includes("HOLD CRWV"), true],
+  ["thinking monday flatten gone", thinking.includes("FLATTEN RKLB and CLOSE SMCI"), false],
+  ["thinking still open", thinking.includes("Three names still open"), true],
   ["thinking no live friday rklb mark", thinking.includes("~72.57") || thinking.includes("$72.57"), false],
   ["thinking no live friday smci mark", thinking.includes("~37.24") || thinking.includes("~1.30"), false],
-  ["thinking monday plan", thinking.includes("What Monday does"), true],
+  ["thinking monday plan gone", thinking.includes("What Monday does"), false],
   ["research is not orders", research.includes("Research, not orders."), true],
-  ["research waitlist", research.includes("ELF first") && research.includes("HOOD watched"), true],
-  ["research social check", research.includes("Open-book social check") && research.includes("flatten still $35.50"), true],
+  ["research no waitlist names", research.includes("ELF") || research.includes("HOOD watched"), false],
+  ["research no flatten preview", research.includes("flatten still $35.50"), false],
   ["open research chapter gone", page.includes("OPEN RESEARCH"), false],
   ["holdings has no waitlist wall", page.includes('id="waitlist"'), false],
   ["thinking does not invent option mark", thinking.includes("134") === false, true],
@@ -252,6 +251,34 @@ const copyChecks = [
   ],
   ["no old log chapters", page.includes('class="chapter"') || page.includes("chapter__no"), false],
 ];
+
+const futureMoveFiles = [
+  ["index.html", page],
+  ["js/site.js", readFileSync(join(root, "js/site.js"), "utf8")],
+  ["data/thinking.md", thinking],
+  ["data/pipeline.json", JSON.stringify(pipeline)],
+  ["data/changelog.md", changelog],
+  ["data/research.md", research],
+];
+const futurePhrases = [
+  "queued flatten",
+  "Monday RTH flatten",
+  "queued close Monday",
+  "we will sell",
+  "we will buy",
+  "What Monday does",
+  "hold to 83.70",
+];
+for (const [file, text] of futureMoveFiles) {
+  for (const phrase of futurePhrases) {
+    copyChecks.push([`no ${phrase} in ${file}`, text.includes(phrase), false]);
+  }
+}
+
+copyChecks.push(
+  ["no ELF next-trade in research", research.includes("ELF first"), false],
+  ["no ELF next-trade in page", page.includes("ELF"), false],
+);
 for (const [name, got, want] of copyChecks) {
   if (got !== want) {
     failed += 1;

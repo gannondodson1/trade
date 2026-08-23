@@ -19,7 +19,7 @@ Numbers come only from the public log:
 - `data/team.md` — named agents on the public page
 - `data/pipeline.json` — public stage labels only; Owned is the open fills
 - `data/thinking.md` — current hold / software-stop note
-- `data/research.md` — waitlist and open-book social check (research, not orders)
+- `data/research.md` — research, not orders; no public waitlist
 - `data/changelog.md` — rule changes
 - `data/spy.json` — official Yahoo Finance SPY daily bars only
 
