@@ -178,7 +178,9 @@ function parseMethodology(md) {
     .map((l) => l.trim())
     .filter((l) => l && !l.startsWith("#"));
   return {
-    lede: lines[0] || "",
+    lede: lines.find((l) => /beat the market/i.test(l)) || lines[0] || "",
+    mission: lines.find((l) => /^Mission:/i.test(l)) || "",
+    philosophy: lines.find((l) => /^Philosophy:/i.test(l)) || "",
     lenses: lines.find((l) => /two lenses/i.test(l)) || "",
     morgan: lines.find((l) => /Morgan operates/i.test(l)) || "",
     cole: lines.find((l) => /Cole executes/i.test(l)) || "",
@@ -576,6 +578,10 @@ function renderMethod(md) {
   const parsed = parseMethodology(md);
   const title = document.getElementById("method-title");
   const lede = document.getElementById("method-lede");
+  const mission = document.getElementById("method-mission");
+  const philosophy = document.getElementById("method-philosophy");
+  if (mission && parsed.mission) mission.textContent = parsed.mission;
+  if (philosophy && parsed.philosophy) philosophy.textContent = parsed.philosophy;
   if (title) title.textContent = "A $500 experiment. Can it beat the market.";
   if (lede) lede.textContent = parsed.lenses || parsed.lede;
   document.getElementById("methodology").innerHTML = `
