@@ -173,18 +173,18 @@ function parseChangelog(md) {
 }
 
 function parseMethodology(md) {
-  const lede = md
-    .split("\n")
+  const lines = md
+    .split(/\r?\n/)
     .map((l) => l.trim())
-    .find((l) => l && !l.startsWith("#"));
-  const edge = /## Edge\n+([\s\S]*?)\n+## Hard limits/.exec(md);
-  const riskLine = (md.match(/The risk book is internal\.[^\n]*/)?.[0] || "").trim();
-  const evidence = /## Evidence\n+([\s\S]*)$/.exec(md);
+    .filter((l) => l && !l.startsWith("#"));
   return {
-    lede: lede || "",
-    edge: (edge?.[1] || "").trim(),
-    risk: riskLine,
-    evidence: (evidence?.[1] || "").trim(),
+    lede: lines[0] || "",
+    lenses: lines.find((l) => /two lenses/i.test(l)) || "",
+    morgan: lines.find((l) => /Morgan operates/i.test(l)) || "",
+    cole: lines.find((l) => /Cole executes/i.test(l)) || "",
+    riley: lines.find((l) => /PASS/.test(l) && /HARD NO/.test(l)) || "",
+    cadence: lines.find((l) => /8:30/.test(l)) || "",
+    rules: lines.find((l) => /risk book is internal/i.test(l)) || "",
   };
 }
 
@@ -574,16 +574,21 @@ function renderJournal(md) {
 
 function renderMethod(md) {
   const parsed = parseMethodology(md);
-  document.getElementById("method-lede").textContent = parsed.lede;
+  const title = document.getElementById("method-title");
+  const lede = document.getElementById("method-lede");
+  if (title) title.textContent = "A $500 experiment. Can it beat the market.";
+  if (lede) lede.textContent = parsed.lenses || parsed.lede;
   document.getElementById("methodology").innerHTML = `
     <div>
-      <h3>Two ways in</h3>
-      ${mdBlocks(parsed.edge)}
+      <h3>Who decides</h3>
+      <p>${mdInline(parsed.morgan)}</p>
+      <p>${mdInline(parsed.cole)}</p>
+      <p>${mdInline(parsed.riley)}</p>
     </div>
     <div>
-      <h3>What stays public</h3>
-      ${parsed.risk ? `<p>${mdInline(parsed.risk)}</p>` : ""}
-      <p>${mdInline(parsed.evidence)}</p>
+      <h3>Cadence</h3>
+      <p>${mdInline(parsed.cadence)}</p>
+      <p>${mdInline(parsed.rules)}</p>
     </div>
   `;
 }
