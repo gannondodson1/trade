@@ -171,6 +171,13 @@ main,
   padding-bottom: 1.75rem;
 }
 
+.fathom {
+  display: block;
+  width: 2.15rem;
+  height: 5.4rem;
+  margin: 0 0 1.15rem;
+}
+
 .wordmark {
   margin: 0;
   font-family: var(--display);
