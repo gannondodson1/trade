@@ -53,3 +53,21 @@ Why it matters: specialists do not brief the trader. Cadence and hard limits sta
 The company is Fathom.
 
 Why it matters: the site should read like a desk, not a product label.
+
+## Aug 24, 2026 — Closed RKLB
+
+Sold remaining lot 2.46171 at $69.79, regular hours. Realized about -$8.20 vs $73.12.
+
+Why it matters: RKLB is a completed cycle on the public log, not a delayed open.
+
+## Aug 24, 2026 — Closed SMCI Sep 4 40 call
+
+Sold 1 contract at $0.76, regular hours. Realized about -$52 vs $1.28.
+
+Why it matters: the SMCI call is a completed cycle on the public log, not a delayed open.
+
+## Aug 24, 2026 — Closed CRWV
+
+Sold remaining lot 2.03892 at $84.5878, regular hours. Realized about -$7.53 vs $88.28.
+
+Why it matters: CRWV is a completed cycle on the public log, not a delayed open.
