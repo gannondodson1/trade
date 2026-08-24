@@ -503,9 +503,21 @@ function publicFillBody(fill) {
   return "";
 }
 
+function publicAboutPnl(n) {
+  const value = Number(n);
+  const abs = Math.abs(value);
+  const digits = Number.isInteger(abs) ? 0 : 2;
+  const sign = value < 0 ? "-" : value > 0 ? "+" : "";
+  return `${sign}$${abs.toFixed(digits)}`;
+}
+
 function publicCloseBody(row) {
-  if (row.qty != null && row.fill != null) return `${row.qty} at $${row.fill}`;
-  return row.note || "";
+  if (row.qty == null || row.fill == null) return row.note || "";
+  let body = `${row.qty} at $${row.fill}`;
+  if (row.pnl_usd != null && row.entry != null) {
+    body += ` (about ${publicAboutPnl(row.pnl_usd)} vs $${row.entry})`;
+  }
+  return body;
 }
 
 function renderDecision(trades) {
