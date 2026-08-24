@@ -8,6 +8,8 @@
     "Risk",
     "Trade Ready"
   ],
-  "owned": [],
+  "owned": [
+    { "name": "CRWV", "state": "delayed open" }
+  ],
   "rejected": []
 }

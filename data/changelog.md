@@ -65,9 +65,3 @@ Why it matters: RKLB is a completed cycle on the public log, not a delayed open.
 Sold 1 contract at $0.76, regular hours. Realized about -$52 vs $1.28.
 
 Why it matters: the SMCI call is a completed cycle on the public log, not a delayed open.
-
-## Aug 24, 2026 — Closed CRWV
-
-Sold remaining lot 2.03892 at $84.5878, regular hours. Realized about -$7.53 vs $88.28.
-
-Why it matters: CRWV is a completed cycle on the public log, not a delayed open.
