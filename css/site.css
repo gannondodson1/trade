@@ -466,6 +466,10 @@ main,
   color: var(--orange);
 }
 
+.feed__kind--close {
+  color: var(--down);
+}
+
 .feed h3 {
   margin: 0;
   font-family: var(--display);

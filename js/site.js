@@ -503,15 +503,30 @@ function publicFillBody(fill) {
   return "";
 }
 
+function publicCloseBody(row) {
+  if (row.qty != null && row.fill != null) return `${row.qty} at $${row.fill}`;
+  return row.note || "";
+}
+
 function renderDecision(trades) {
   const fills = trades.filter((t) => t.event === "fill" && t.side === "buy");
-  const items = fills.map((fill) => ({
-    ts: fill.ts,
-    kind: "fill",
-    kindLabel: "Filled buy",
-    title: publicFillName(fill),
-    body: publicFillBody(fill),
-  }));
+  const closed = trades.filter((t) => t.event === "close");
+  const items = [
+    ...fills.map((fill) => ({
+      ts: fill.ts,
+      kind: "fill",
+      kindLabel: "Filled buy",
+      title: publicFillName(fill),
+      body: publicFillBody(fill),
+    })),
+    ...closed.map((row) => ({
+      ts: row.ts,
+      kind: "close",
+      kindLabel: "Closed",
+      title: publicFillName(row),
+      body: publicCloseBody(row),
+    })),
+  ].sort((a, b) => Date.parse(a.ts) - Date.parse(b.ts));
 
   const host = document.getElementById("feed");
   if (!items.length) {
@@ -555,13 +570,14 @@ function renderPortfolio(pipeline) {
     .join("");
 }
 
-function renderRecord(book) {
+function renderRecord(book, trades) {
   const host = document.getElementById("closes");
-  if (book.closed === 0) {
+  const closed = (trades || []).filter((t) => t.event === "close");
+  if (!closed.length && book.closed === 0) {
     host.innerHTML = `<p>No closes yet. Track record stays empty.</p>`;
     return;
   }
-  host.innerHTML = `<p>${escapeHtml(String(book.closed))} closes on the public log.</p>`;
+  host.innerHTML = `<p>${escapeHtml(String(closed.length || book.closed))} closes on the public log.</p>`;
 }
 
 function renderJournal(md) {
@@ -649,7 +665,7 @@ async function main() {
     renderFirm(team, thought, meta);
     renderDecision(trades);
     renderPortfolio(pipeline);
-    renderRecord(book);
+    renderRecord(book, trades);
     renderJournal(changelog);
     renderMethod(methodology);
     watchNav();
