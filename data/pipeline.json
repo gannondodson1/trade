@@ -1,13 +1,5 @@
 {
-  "note": "Public skeleton. Empty stages have no public names.",
-  "flow": [
-    "Discovery",
-    "Research",
-    "High Conviction",
-    "Red Team",
-    "Risk",
-    "Trade Ready"
-  ],
+  "note": "Not a public page.",
   "owned": [],
   "rejected": []
 }

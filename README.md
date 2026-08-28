@@ -1,42 +1,25 @@
 # Fathom
 
-Public tracker for a $500 experiment on a dedicated account. The trading bot owns the book and writes a public-safe log. This repository is the website only. The public brand is Fathom.
+Public pages for a small real account. An autonomous AI investment firm. This repository is the website only. The public brand is Fathom.
 
-Live project site (after GitHub Pages is enabled):
-
-<https://gannondodson1.github.io/trade/>
-
-The site is a single static page: scoreboard, the firm, decision feed, portfolio, track record, experiment journal, and how it works. It fetches JSON and markdown from `data/` in the browser. There is no backend and no secrets.
+The question: can it find a real edge and compound capital without a human secretly running the book. We do not yet know if we have an edge. We will not say we do until the record shows it.
 
 ## What you will see
 
-Numbers come only from the public log:
+NAV comes only from the delayed public log:
 
-- `data/meta.json` — start line, last equity, cash, last-update stamp
-- `data/equity.jsonl` — snapshot history for the desk-only chart
-- `data/trades.jsonl` — intents and fills (no account numbers or order IDs)
-- `data/methodology.md` — how the desk tries to win
-- `data/team.md` — named agents on the public page
-- `data/pipeline.json` — public stage labels only; Owned is the open fills
-- `data/thinking.md` — delayed public desk note
-- `data/research.md` — public research page; no public names
-- `data/changelog.md` — rule changes
-- `data/spy.json` — official Yahoo Finance SPY daily bars only
+- `data/meta.json` — start line, last equity, cash
+- `data/equity.jsonl` — snapshot history
+- `data/trades.jsonl` — completed fills and closes (no account numbers or order IDs)
 
 Derived figures the page is allowed to compute:
 
 - Total return = (last equity − $500) / $500
 - Dollar P/L = last equity − $500
-- Capital deployed = sum of filled notionals still open
-- Realized P/L = $0 while there are no closes
-- Open P/L = dollar P/L − realized
-- Vs S&P 500 = desk total return % minus SPY % from the Aug 20 close (official daily print)
 
-Do not invent intra-day SPY ticks. If a SPY comparison has no official source bar, omit it.
+Do not invent marks, positions, or an edge. Do not publish the owner’s name, account numbers, the live book, or the next trade.
 
 ## Local preview
-
-Serve the folder as a static site so `fetch()` can read `data/`:
 
 ```bash
 python3 -m http.server 8080
@@ -44,35 +27,18 @@ python3 -m http.server 8080
 
 Then open <http://localhost:8080/>.
 
-Asset and data paths are relative, and also resolve when the site is hosted at the `/trade/` project-page base.
-
-Check the seed math:
+Check the public copy and seed math:
 
 ```bash
 node scripts/check-data.mjs
 ```
 
-## GitHub Pages
+## Pages
 
-This is a **project** site. The public URL is `/trade/` on `gannondodson1.github.io`, not a user site at the domain root.
-
-Publishing path:
-
-1. Merge to `main`.
-2. In the repo: **Settings → Pages**.
-3. Set **Source** to **GitHub Actions**.
-4. Run (or re-run) the **Deploy GitHub Pages** workflow in `.github/workflows/pages.yml`.
-
-The workflow copies `index.html`, `404.html`, `favicon.svg`, `css/`, `js/`, and `data/` into a Pages artifact. It deploys from `main` only.
-
-If the Pages source cannot be flipped from this PR (needs admin), leave it on GitHub Actions after merge. Do not point Pages at `/docs` unless you also move the site there.
-
-### Custom domain later
-
-The site is CNAME-ready: add a `CNAME` file at the repo root (and in the workflow `dist/` copy) with the hostname when you have one. Do not invent a domain. Until then the project URL stays `https://gannondodson1.github.io/trade/`.
-
-After a custom domain is attached, keep the `/trade/` paths working on github.io or move to a user/org site — decide then. This README is the switch checklist, not a domain name.
-
-## Updating the book
-
-Replace files in `data/`. Do not hardcode the next P/L into `index.html`. Round share counts in the UI if needed; keep logged cost, stop, and target exact. Never publish account numbers, order IDs, credentials, raw prompts, or broker identifiers.
+- `/` — NAV first, question under it
+- `/performance/` — the delayed mark
+- `/portfolio/` — closed trades from the public log
+- `/letters/` — Letter 01 if it is live
+- `/philosophy/` — what it is, how it thinks, who, hard rules
+- `/methodology/` — how the record is made
+- `/research/` — 404 while research is empty

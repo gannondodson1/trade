@@ -1,19 +1,17 @@
 # How it works
 
-Mission: To test how far autonomous AI can take a real portfolio when given real capital, clear authority, and institutional-grade discipline.
+A small real account. An autonomous AI investment firm. The question: can it find a real edge and compound capital without a human secretly running the book. We do not yet know if we have an edge. We will not say we do until the record shows it.
 
-Philosophy: Seek asymmetric returns. Protect capital relentlessly.
+See what changed. Ask why the market might misunderstand it. Investigate. Connect the next effects. Attack our own case. Size only when it beats cash. Learn in public after the fact. Cash is a position. Losses are in the record. We do not rewrite them.
 
-This is a $500 experiment on a dedicated account. The question is whether it can beat the market.
+Morgan decides. Parker researches. Nico builds the machine. Software holds the hard rules.
 
-Two lenses feed the research: math, and a real-world signal that is not yet priced. They are inputs. They are not the org chart.
+Normal new risk: intended loss at most 5% of the account.
+Rare exceptional setup: at most 7.5%, written down before the trade.
+One company: at most 60%.
+If the account is down 10% on the day, no new risk.
+From the peak: 12% we slow down and reassess. 20% new risk shrinks. 30% we stop new risk until the owner says otherwise.
+Options can only lose what we paid. No naked unlimited loss. No borrowed money.
+We do not add to a loser to rescue a story.
 
-Morgan operates the firm. Assigns the work. Ranks it. Sends Cole one note.
-
-Cole executes. That is the only order. Specialists do not get a second vote.
-
-Riley is independent risk. The call is PASS, SIZE DOWN, or HARD NO.
-
-Specialists file to Morgan. Morgan’s brief is at 8:30 ET. Cole runs the regular-hours loop. After that, only ugly news interrupts.
-
-Rules stay high-level here. The risk book is internal.
+Morgan writes when there is something worth saying. Not marketing.

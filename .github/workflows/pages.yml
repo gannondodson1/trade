@@ -29,6 +29,7 @@ jobs:
           mkdir -p dist
           cp index.html 404.html favicon.svg dist/
           cp -r css js data dist/
+          cp -r performance portfolio letters philosophy methodology dist/
           touch dist/.nojekyll
 
       - name: Configure Pages

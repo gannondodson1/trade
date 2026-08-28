@@ -1,11 +1,11 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 function read(name) {
-  return readFileSync(join(root, "data", name), "utf8");
+  return readFileSync(join(root, name), "utf8");
 }
 
 function jsonl(name) {
@@ -16,9 +16,9 @@ function jsonl(name) {
     .map((line) => JSON.parse(line));
 }
 
-const meta = JSON.parse(read("meta.json"));
-const equity = jsonl("equity.jsonl");
-const trades = jsonl("trades.jsonl");
+const meta = JSON.parse(read("data/meta.json"));
+const equity = jsonl("data/equity.jsonl");
+const trades = jsonl("data/trades.jsonl");
 
 const start = meta.start_equity;
 const last = equity.at(-1);
@@ -27,11 +27,6 @@ const dollar = lastEquity - start;
 const totalReturn = (dollar / start) * 100;
 const fills = trades.filter((t) => t.event === "fill" && t.side === "buy");
 const closes = trades.filter((t) => t.event === "close" || (t.event === "fill" && t.side === "sell"));
-const deployed = fills.reduce((sum, t) => sum + Number(t.notional), 0);
-const spy = JSON.parse(read("spy.json"));
-const spyClosePct = Number(spy.bars[0].change_pct);
-const vsSpy = Number((Number(totalReturn.toFixed(2)) - spyClosePct).toFixed(2));
-const spyOpenPct = Number(((spy.bars[0].open / spy.baseline.close - 1) * 100).toFixed(4));
 
 const NUM = String.raw`\d+(?:\.\d+)?`;
 function parseFillNote(note) {
@@ -49,15 +44,24 @@ const fillPrices = {
 };
 
 const checks = [
-  ["equity rows", equity.length, 6],
+  ["equity rows", equity.length, 7],
   ["trade rows", trades.length, 9],
   ["fills", fills.length, 3],
   ["closes", closes.length, 3],
-  ["aug 21 buy rows", trades.filter((t) => String(t.ts).startsWith("2026-08-21") && t.side === "buy").length, 6],
-  ["sell intents pending", trades.filter((t) => t.event === "intent" && t.side === "sell").length, 0],
-  ["aug 24 intents", trades.filter((t) => String(t.ts).startsWith("2026-08-24") && t.event === "intent").length, 0],
-  ["no sell fills", trades.filter((t) => t.event === "fill" && t.side === "sell").length, 0],
-  ["no aug 22 rows", trades.filter((t) => String(t.ts).startsWith("2026-08-22")).length, 0],
+  ["last equity", lastEquity, 432.17],
+  ["meta last equity", meta.last_equity, 432.17],
+  ["cash", last.cash, 432.17],
+  ["dollar P/L", Number(dollar.toFixed(2)), -67.83],
+  ["total return %", Number(totalReturn.toFixed(1)), -13.6],
+  ["closed trades", meta.closed_trades, 3],
+  ["open positions", meta.open_positions, 0],
+  ["meta has no invented marks", meta.marks == null, true],
+  ["RKLB fill qty", fillPrices.RKLB.qty, 2.46171],
+  ["RKLB fill price", fillPrices.RKLB.price, 73.12],
+  ["CRWV fill qty", fillPrices.CRWV.qty, 2.03892],
+  ["CRWV fill price", fillPrices.CRWV.price, 88.28],
+  ["SMCI fill qty", fillPrices.SMCI.qty, 1],
+  ["SMCI fill price", fillPrices.SMCI.price, 1.28],
   [
     "rklb close",
     closes.some((t) => t.symbol === "RKLB" && t.event === "close" && t.fill === 69.79 && t.pnl_usd === -8.2),
@@ -73,27 +77,6 @@ const checks = [
     closes.some((t) => t.symbol === "CRWV" && t.event === "close" && t.fill === 84.5878 && t.pnl_usd === -7.53),
     true,
   ],
-  ["last equity", lastEquity, 505.4],
-  ["meta last equity", meta.last_equity, 505.4],
-  ["cash", last.cash, 11.96],
-  ["dollar P/L", Number(dollar.toFixed(2)), 5.4],
-  ["total return %", Number(totalReturn.toFixed(2)), 1.08],
-  ["capital deployed", deployed, 488],
-  ["closed trades", meta.closed_trades, 0],
-  ["updated stamp", meta.updated_et, "Aug 21, 2026, 5:49 PM ET"],
-  ["meta has no invented marks", meta.marks == null, true],
-  ["SPY prior close", spy.baseline.close, 762.6],
-  ["SPY Aug 21 close", spy.bars[0].close, 765.72],
-  ["SPY official change %", spyClosePct, 0.41],
-  ["SPY open % from prior close", spyOpenPct, 0.4524],
-  ["vs S&P 500 (1.08 - 0.41)", vsSpy, 0.67],
-  ["SPY source note", spy.source, "Yahoo Finance SPY daily, retrieved Aug 21, 2026."],
-  ["RKLB fill qty", fillPrices.RKLB.qty, 2.46171],
-  ["RKLB fill price", fillPrices.RKLB.price, 73.12],
-  ["CRWV fill qty", fillPrices.CRWV.qty, 2.03892],
-  ["CRWV fill price", fillPrices.CRWV.price, 88.28],
-  ["SMCI fill qty", fillPrices.SMCI.qty, 1],
-  ["SMCI fill price", fillPrices.SMCI.price, 1.28],
 ];
 
 let failed = 0;
@@ -107,218 +90,53 @@ for (const [name, got, want] of checks) {
   }
 }
 
-const methodology = read("methodology.md");
-const changelog = read("changelog.md");
-const thinking = read("thinking.md");
-const research = read("research.md");
-const team = read("team.md");
-const page = readFileSync(join(root, "index.html"), "utf8");
-const rklbThesis = fills.find((t) => t.symbol === "RKLB").thesis;
-const teamNames = [
-  "Morgan",
-  "Alex",
-  "Parker",
-  "Jules",
-  "Sloane",
-  "Remy",
-  "Victor",
-  "Riley",
-  "Cole",
-  "Nico",
+const publicFiles = [
+  "index.html",
+  "404.html",
+  "performance/index.html",
+  "portfolio/index.html",
+  "letters/index.html",
+  "philosophy/index.html",
+  "methodology/index.html",
+  "js/site.js",
+  "css/site.css",
+  "data/team.md",
+  "data/methodology.md",
+  "README.md",
 ];
-const pipeline = JSON.parse(read("pipeline.json"));
+
+const publicText = publicFiles.map((file) => read(file)).join("\n");
+const home = read("index.html");
+const philosophy = read("philosophy/index.html");
+const letters = read("letters/index.html");
+const css = read("css/site.css");
+
 const copyChecks = [
-  ["methodology mission", methodology.includes("Mission: To test how far autonomous AI can take a real portfolio"), true],
-  ["methodology philosophy", methodology.includes("Philosophy: Seek asymmetric returns."), true],
-  ["methodology beat the market", methodology.includes("whether it can beat the market"), true],
-  ["methodology two lenses inputs", methodology.includes("They are inputs. They are not the org chart."), true],
-  ["methodology morgan operates", methodology.includes("Morgan operates the firm."), true],
-  ["methodology cole only order", methodology.includes("Cole executes. That is the only order."), true],
-  ["methodology riley three calls", methodology.includes("PASS, SIZE DOWN, or HARD NO"), true],
-  ["methodology cadence 8:30", methodology.includes("8:30 ET"), true],
-  ["methodology no 7:45", methodology.includes("7:45"), false],
-  ["methodology ugly news", methodology.includes("only ugly news interrupts"), true],
-  ["methodology no max 200", /\$200/.test(methodology), false],
-  ["methodology no daily 15", /\$15/.test(methodology), false],
-  ["methodology no drawdown 8", methodology.includes("8%"), false],
-  ["methodology risk book internal", methodology.includes("The risk book is internal."), true],
-  ["page method mission", page.includes("Mission: To test how far autonomous AI can take a real portfolio"), true],
-  ["page method philosophy", page.includes("Philosophy: Seek asymmetric returns."), true],
-  ["page method has 8:30", page.includes("8:30 ET"), true],
-  ["page method has no 7:45", page.includes("7:45"), false],
-  ["page method morgan operates", page.includes("Morgan operates the firm."), true],
-  ["page method riley calls", page.includes("PASS, SIZE DOWN, or HARD"), true],
-  ["changelog loop item is original", changelog.includes("15-minute regular-hours checks, software stops"), true],
-  ["changelog research feed item", changelog.includes("Two-lens desk + Research feed"), true],
-  ["changelog loop heading", changelog.includes("15-minute loop"), true],
-  ["changelog name-off item", changelog.includes("Name off the public page"), true],
-  ["changelog named team item", changelog.includes("Named team + COS"), true],
-  ["changelog philosophy item", changelog.includes("Philosophy updated"), true],
-  ["changelog fathom item", changelog.includes("The company is Fathom."), true],
-  ["changelog no extra risk warning", changelog.includes("Risk warning on the live book"), false],
-  ["changelog no hard-risk book", changelog.includes("hard-risk") || changelog.includes("Daily Brief"), false],
-  ["changelog keeps fathom", changelog.includes("The company is Fathom."), true],
-  ["changelog no Aug 22 kill cards", /Aug 22, 2026/.test(changelog), false],
-  ["changelog no monday flatten", changelog.includes("Monday flatten") || changelog.includes("queued") || /Monday/.test(changelog), false],
-  ["changelog no 83.70", changelog.includes("83.70"), false],
-  ["changelog closed rklb", changelog.includes("## Aug 24, 2026 — Closed RKLB"), true],
-  ["changelog closed smci", changelog.includes("## Aug 24, 2026 — Closed SMCI Sep 4 40 call"), true],
-  ["changelog closed crwv", changelog.includes("## Aug 24, 2026 — Closed CRWV"), true],
-  [
-    "changelog heading count",
-    changelog.split(/^## /m).filter((c) => c.trim() && !c.trim().startsWith("#")).length,
-    12,
-  ],
-  ["team all ten names", teamNames.every((name) => team.includes(`- ${name} -`)), true],
-  ["team has no Dana", team.includes("Dana"), false],
-  ["team has no Tate", team.includes("Tate"), false],
-  ["team closer", team.includes("Morgan operates. Cole executes. Riley binds risk."), true],
-  ["team morgan operator", team.includes("COS / operator"), true],
-  ["team riley binds", team.includes("Binds risk"), true],
-  ["scoreboard section", page.includes('id="scoreboard"') && page.includes("Scoreboard"), true],
-  ["firm section", page.includes('id="firm"') && page.includes("The firm"), true],
-  ["decision section", page.includes('id="decision"') && page.includes("Decision feed"), true],
-  ["journal section", page.includes('id="journal"') && page.includes("Experiment journal"), true],
-  ["portfolio section", page.includes('id="portfolio"') && page.includes("Portfolio"), true],
-  ["track record section", page.includes('id="record"') && page.includes("Track record"), true],
-  ["method section", page.includes('id="method"') && page.includes("How it works"), true],
-  ["old 01 numbers ia gone", page.includes("01 Numbers") || page.includes("NUMBERS"), false],
-  ["old 08 what changed ia gone", page.includes("08 What changed") || page.includes("WHAT CHANGED"), false],
-  [
-    "pipeline public stages",
-    JSON.stringify(pipeline.flow) ===
-      JSON.stringify([
-        "Discovery",
-        "Research",
-        "High Conviction",
-        "Red Team",
-        "Risk",
-        "Trade Ready",
-      ]),
-    true,
-  ],
-  ["pipeline has no idea names", !["ELF", "DKNG", "SOFI"].some((n) => JSON.stringify(pipeline).includes(n)), true],
-  [
-    "pipeline owned empty",
-    Array.isArray(pipeline.owned) && pipeline.owned.length === 0,
-    true,
-  ],
-  ["pipeline no rklb", !JSON.stringify(pipeline.owned).includes("RKLB"), true],
-  ["pipeline no smci", !JSON.stringify(pipeline.owned).includes("SMCI"), true],
-  ["pipeline no crwv", !JSON.stringify(pipeline.owned).includes("CRWV"), true],
-  ["pipeline no delayed open", !JSON.stringify(pipeline).includes("delayed open"), true],
-  ["pipeline no 83.70", !JSON.stringify(pipeline).includes("83.70"), true],
-  ["pipeline no next-buy", !/next-buy|next buy|cash-target|cash target/i.test(JSON.stringify(pipeline)), true],
-  ["pipeline rejected empty", Array.isArray(pipeline.rejected) && pipeline.rejected.length === 0, true],
-  ["pipeline no monday queued", /monday|queued|flatten|hold to/i.test(JSON.stringify(pipeline)), false],
-  ["holdings not three unchanged holds", page.includes("The three names we still hold"), false],
-  ["holdings delayed opens none", page.includes("Delayed opens: none."), true],
-  ["holdings not crwv delayed open", page.includes("CRWV delayed open"), false],
-  ["holdings not three delayed opens", page.includes("Three delayed opens"), false],
-  ["page no monday flatten", /Monday|queued flatten|queued close/i.test(page), false],
-  ["page no live stop math", /69\.50|35\.50|83\.70/.test(page), false],
-  ["thinking no owner-brief", thinking.includes("hard-risk") || thinking.includes("Daily Brief"), false],
-  ["thinking delayed stamp", thinking.includes("Updated: Aug 24, 2026, 9:48 AM ET (delayed)"), true],
-  ["thinking holdings none", thinking.includes("Holdings: none."), true],
-  ["thinking lists rklb close", thinking.includes("sold RKLB 2.46171 at $69.79"), true],
-  ["thinking lists smci close", thinking.includes("sold SMCI Sep 4 40 call 1 at $0.76"), true],
-  ["thinking lists crwv close", thinking.includes("sold CRWV 2.03892 at $84.5878"), true],
-  ["thinking no delayed open", /delayed open/i.test(thinking), false],
-  ["thinking no three delayed opens", thinking.includes("All three are delayed opens"), false],
-  ["thinking no 83.70", thinking.includes("83.70"), false],
-  ["thinking no next-buy", /next-buy|next buy|cash-target|cash target/i.test(thinking), false],
-  ["thinking no monday flatten", /Monday|FLATTEN|queued|HOLD CRWV/.test(thinking), false],
-  ["thinking no live stop math", /69\.50|35\.50|83\.70/.test(thinking), false],
-  ["thinking no live friday rklb mark", thinking.includes("~72.57") || thinking.includes("$72.57"), false],
-  ["thinking no live friday smci mark", thinking.includes("~37.24") || thinking.includes("~1.30"), false],
-  ["research no public names", research.includes("No public research names."), true],
-  ["research no waitlist names", /ELF|DKNG|SOFI|UBER|PATH|IONQ|ZETA|HOOD|ULTA|SONY|CMCSA/.test(research), false],
-  ["open research chapter gone", page.includes("OPEN RESEARCH"), false],
-  ["holdings has no waitlist wall", page.includes('id="waitlist"'), false],
-  ["thinking does not invent option mark", thinking.includes("134") === false, true],
-  ["logged RKLB thesis unchanged", rklbThesis.includes("$123M to $234M"), true],
-  ["disclaimer in hero", readFileSync(join(root, "index.html"), "utf8").includes("not a recommendation to buy or sell"), true],
-  ["disclaimer in footer", page.includes("Not trading advice. This site is a public log"), true],
-  ["fathom mark", page.includes('class="fathom"'), true],
-  ["fathom lockup", page.includes('class="lockup"') && page.includes("Fathom"), true],
-  ["no human owner name", !page.includes("Gannon") && !page.includes("Dodson"), true],
-  ["disclaimer rail", readFileSync(join(root, "index.html"), "utf8").includes("Personal $500 log"), true],
-  ["page title is Fathom", page.includes("<title>Fathom</title>"), true],
-  ["wordmark is Fathom", page.includes('<h1 class="wordmark">Fathom</h1>'), true],
-  ["footer is Fathom", page.includes('<p class="foot__brand">Fathom</p>'), true],
-  ["no Open Book brand", !page.includes("Open Book"), true],
-  [
-    "signed P/L colors exist",
-    readFileSync(join(root, "css/site.css"), "utf8").includes("--up:") &&
-      readFileSync(join(root, "css/site.css"), "utf8").includes("--down:"),
-    true,
-  ],
-  [
-    "portfolio value is not a signed figure",
-    /row\("Portfolio".*signedFigure/.test(readFileSync(join(root, "js/site.js"), "utf8")),
-    false,
-  ],
-  [
-    "no portfolio-up pill",
-    readFileSync(join(root, "js/site.js"), "utf8").includes("PORTFOLIO IS UP"),
-    false,
-  ],
-  [
-    "total return is a signed figure",
-    readFileSync(join(root, "js/site.js"), "utf8").includes("signedFigure(signedPct(book.totalReturn)"),
-    true,
-  ],
-  [
-    "profit or loss is a signed figure",
-    readFileSync(join(root, "js/site.js"), "utf8").includes("signedFigure(signedMoney(book.dollar)"),
-    true,
-  ],
-  [
-    "drawdown from logged equity",
-    readFileSync(join(root, "js/site.js"), "utf8").includes("maxDrawdown") &&
-      readFileSync(join(root, "js/site.js"), "utf8").includes("equity.jsonl"),
-    true,
-  ],
-  [
-    "no pending tickets as fills",
-    /event === "intent"/.test(readFileSync(join(root, "js/site.js"), "utf8")) === false &&
-      readFileSync(join(root, "js/site.js"), "utf8").includes('t.event === "fill" && t.side === "buy"'),
-    true,
-  ],
-  [
-    "decision feed includes closes",
-    readFileSync(join(root, "js/site.js"), "utf8").includes('t.event === "close"'),
-    true,
-  ],
-  [
-    "decision feed close includes about pnl",
-    readFileSync(join(root, "js/site.js"), "utf8").includes("about ${publicAboutPnl(row.pnl_usd)} vs $"),
-    true,
-  ],
-  [
-    "decision feed fill qty at price",
-    readFileSync(join(root, "js/site.js"), "utf8").includes("publicFillBody") &&
-      readFileSync(join(root, "js/site.js"), "utf8").includes(" at $"),
-    true,
-  ],
-  [
-    "decision feed no kill cards",
-    readFileSync(join(root, "js/site.js"), "utf8").includes("red-team kill"),
-    false,
-  ],
-  [
-    "js no live stop math",
-    /69\.50|35\.50|83\.70/.test(readFileSync(join(root, "js/site.js"), "utf8")),
-    false,
-  ],
-  [
-    "no live-stop leakage",
-    readFileSync(join(root, "js/site.js"), "utf8").includes("fill.stop") === false &&
-      page.includes("software stop") === false,
-    true,
-  ],
-  ["no old log chapters", page.includes('class="chapter"') || page.includes("chapter__no"), false],
+  ["no research page", existsSync(join(root, "research/index.html")) || existsSync(join(root, "research.html")), false],
+  ["NAV first on home", home.indexOf("$432.17") < home.indexOf("Can it find a real edge"), true],
+  ["question under NAV", home.includes("Can it find a real edge and compound capital without a human secretly running the book."), true],
+  ["no claimed edge", /we have an edge(?!\. We will not)/i.test(home) === false && home.includes("We do not yet know if we have an edge."), true],
+  ["small real account", home.includes("A small real account. An autonomous AI investment firm."), true],
+  ["letter 01 live", letters.includes("Cash is a position") && letters.includes("The $500 experiment marked $432.17."), true],
+  ["letters not marketing", letters.includes("Morgan writes when there is something worth saying. Not marketing."), true],
+  ["who morgan parker nico", philosophy.includes("Morgan decides.") && philosophy.includes("Parker researches.") && philosophy.includes("Nico builds the machine."), true],
+  ["software holds rules", philosophy.includes("Software holds the hard rules."), true],
+  ["risk 5 percent", philosophy.includes("intended loss at most 5% of the account."), true],
+  ["risk 7.5 percent", philosophy.includes("at most 7.5%, written down before the trade."), true],
+  ["risk 60 percent", philosophy.includes("One company: at most 60%."), true],
+  ["risk 10 day", philosophy.includes("down 10% on the day, no new risk."), true],
+  ["drawdown 12 20 30", philosophy.includes("12% we slow down") && philosophy.includes("20% new risk shrinks") && philosophy.includes("30% we stop new risk"), true],
+  ["no naked options", philosophy.includes("No naked unlimited loss. No borrowed money."), true],
+  ["no add to loser", philosophy.includes("We do not add to a loser to rescue a story."), true],
+  ["paper look", css.includes("--paper: #eadfc9") && css.includes("--ink: #14110d") && css.includes("--rust: #b83218"), true],
+  ["no two-dot chart", !home.includes("S&P 500") && !read("js/site.js").includes("spy"), true],
+  ["no desk stamp", !home.includes("Last public note") && !home.includes("firm-status"), true],
+  ["no decision feed", !home.includes("Decision feed") && !home.includes('id="feed"'), true],
+  ["no scoreboard desk", !home.includes("Scoreboard") && !home.includes("The firm"), true],
+  ["portfolio cash", read("portfolio/index.html").includes("No open positions. The book is in cash."), true],
+  ["no research names", read("data/research.md").includes("No public research names."), true],
 ];
+
 for (const [name, got, want] of copyChecks) {
   if (got !== want) {
     failed += 1;
@@ -329,71 +147,58 @@ for (const [name, got, want] of copyChecks) {
 }
 
 const banned = [
-  "Tradey",
-  "Claudey",
-  "farzad.money",
-  "Tradey proposes",
-  "Gannon’s public desk",
-  "Gannon's public desk",
-  "Chris Camillo",
-  "Camillo",
-  "Camillo-style",
-  "Doctrine",
-  "the department is the book",
-  "two lenses, one decision",
-  "does not grade its own homework",
-  "Trading ops",
-  "The Desk",
-  "Open Book",
-  "Gannon Dodson",
+  "Cole",
+  "Riley",
+  "Victor",
+  "Alex",
+  "Jules",
+  "Sloane",
+  "Remy",
+  "hedge fund",
+  "Hedge fund",
+  "hedge-fund",
+  "asymmetric returns",
+  "beat the market",
+  "Decision feed",
+  "alpha",
   "Gannon",
+  "Dodson",
+  "Open Book",
+  "The Desk",
 ];
-const oldBrand = ["AGEN", "TIC"].join("");
-const oldNames = [
-  ["Gannon", "\u2019s ", "Agen", "tic Trader"].join(""),
-  ["Gannon", "'s ", "Agen", "tic Trader"].join(""),
+
+const oldRisk = [
+  /\$15\/3%/,
+  /3% daily/,
+  /max 40%/,
+  /at most 40%/,
+  /8-12-18/,
+  /8% drawdown halt/,
+  /Daily loss halt/,
 ];
-for (const file of [
-  "index.html",
-  "js/site.js",
-  "404.html",
-  "README.md",
-  "data/methodology.md",
-  "data/thinking.md",
-  "data/changelog.md",
-  "data/team.md",
-  "data/research.md",
-  "data/pipeline.json",
-  "css/site.css",
-]) {
-  const text = readFileSync(join(root, file), "utf8");
-  if (text.includes(oldBrand) || oldNames.some((name) => text.includes(name))) {
-    failed += 1;
-    console.error(`FAIL old brand string in ${file}`);
-  }
-}
-for (const file of [
-  "index.html",
-  "js/site.js",
-  "404.html",
-  "README.md",
-  "data/methodology.md",
-  "data/thinking.md",
-  "data/changelog.md",
-  "data/team.md",
-  "data/research.md",
-  "data/pipeline.json",
-]) {
-  const text = readFileSync(join(root, file), "utf8");
+
+for (const file of publicFiles) {
+  const text = read(file);
   for (const word of banned) {
     if (text.includes(word)) {
       failed += 1;
       console.error(`FAIL banned term "${word}" in ${file}`);
     }
   }
+  for (const pattern of oldRisk) {
+    if (pattern.test(text)) {
+      failed += 1;
+      console.error(`FAIL old risk language ${pattern} in ${file}`);
+    }
+  }
+}
+
+if (publicText.includes("we have an edge.") && !publicText.includes("We do not yet know if we have an edge.")) {
+  failed += 1;
+  console.error("FAIL claimed edge without the refusal");
 }
 
 if (failed) {
   process.exit(1);
 }
-console.log("all data checks passed");
+console.log("all public copy checks passed");

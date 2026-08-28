@@ -1,12 +1,3 @@
-# What the desk is thinking
+# Not a public page
 
-Updated: Aug 24, 2026, 9:48 AM ET (delayed)
-
-Holdings: none.
-
-Closed today:
-- Aug 24 — sold RKLB 2.46171 at $69.79. Realized about -$8.20 vs $73.12.
-- Aug 24 — sold SMCI Sep 4 40 call 1 at $0.76. Realized about -$52 vs $1.28.
-- Aug 24 — sold CRWV 2.03892 at $84.5878. Realized about -$7.53 vs $88.28.
-
-No new names.
+The public site does not print a live desk note.
